@@ -27,21 +27,25 @@
 }
 .accent__ink   { background: var(--cobalt);    mix-blend-mode: multiply; }
 .accent__light { background: var(--on-cobalt); mix-blend-mode: screen; }
-@supports not (mix-blend-mode: screen) {
-  .accent__light { display: none; }  /* degrade to cobalt-only, never black ghosts */
-}
 
-/* porcelain rim — thin double rule + petal band, wide viewports only */
-.accent::after {
-  content: '';
+/* the porcelain rim rides the SAME two inks, so the left/right border line
+   flips cobalt-on-porcelain / white-on-field exactly like the leaves */
+.accent__rim {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: url('../img/bg-porcelain-rim.svg') center / cover no-repeat;
   display: none;
+  -webkit-mask: url('../img/bg-porcelain-rim.svg') center / cover no-repeat;
+  mask: url('../img/bg-porcelain-rim.svg') center / cover no-repeat;
 }
+.accent__rim--ink   { background: var(--cobalt);    mix-blend-mode: multiply; }
+.accent__rim--light { background: var(--on-cobalt); mix-blend-mode: screen; }
 @media (min-width: 1000px) {
-  .accent::after { display: block; }
+  .accent__rim { display: block; }   /* wide viewports only */
+}
+@supports not (mix-blend-mode: screen) {
+  .accent__light,
+  .accent__rim--light { display: none; }  /* degrade to cobalt-only, never black ghosts */
 }
 
 /* ---------------- Grain overlay ---------------- */
@@ -200,8 +204,8 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
 }
 .section-head .num {
   position: absolute;
-  top: -0.6em;
-  left: -0.5em;
+  top: -0.4em;
+  left: -0.25em;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: var(--fs-numeral);
@@ -284,9 +288,8 @@ main > section > .container,
 .hero__kicker {
   margin-bottom: 1.5rem;
   font-family: var(--font-mono);
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: var(--cobalt);
-  letter-spacing: 0.02em;
 }
 .hero__name {
   font-family: var(--font-display);
@@ -328,15 +331,21 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
+  /* faint cobalt duotone carries the TONE (the silhouette and the facial
+     shadows); the line network on top becomes texture over it */
+  background-image: url('../img/me-duotone.webp');
+  background-size: cover;
+  background-position: center;
+  /* dissolve the outer edge into the porcelain instead of ending at a hard edge */
+  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
 }
 .hero__portrait-frame img {
   width: 100%;
   height: auto;
   aspect-ratio: 3 / 4;
   object-fit: cover;
-  /* dissolve the outer dots into the porcelain instead of ending at a hard edge */
-  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  mix-blend-mode: multiply;
 }
 /* optional shimmer: a stacked copy of the stipple breathing in opacity,
    transform-free, zero JS, killed under reduced-motion */
@@ -383,6 +392,16 @@ main > section > .container,
   margin-bottom: 1.25rem;
 }
 .about__body strong { color: var(--ink); font-weight: 600; }
+/* marker-style highlight on emphasised copy — lower band only, cloned across
+   line breaks so a wrapped <strong> keeps one continuous stripe */
+main strong,
+main b {
+  background: linear-gradient(180deg, transparent 62%, var(--cobalt-soft) 62%);
+  padding: 0 0.1em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
 .about__tagline {
   margin-top: 2rem;
   font-family: var(--font-accent);
@@ -655,31 +674,35 @@ main > section > .container,
 }
 .contact__actions .btn { background: var(--on-cobalt); color: var(--field); box-shadow: none; }
 .contact__actions .btn:hover { background: var(--cobalt-soft); box-shadow: none; }
-.contact__actions .btn--ghost {
-  background: transparent;
-  color: var(--on-cobalt);
-  border-color: var(--on-cobalt-line);
-}
-.contact__actions .btn--ghost:hover {
-  background: rgba(244, 247, 251, 0.1);
-  border-color: var(--on-cobalt);
-}
 .contact__socials {
   display: flex;
-  gap: 1.25rem;
-  margin-top: 1.75rem;
+  gap: 1.85rem;
+  margin-top: 1.85rem;
   position: relative;
   z-index: 1;
 }
+/* label under the mark, not beside it — the icons read as one ink row */
 .contact__socials a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-ui);
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--on-cobalt-soft);
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--dur), color var(--dur);
+  transition: color var(--dur) var(--ease-soft);
 }
-.contact__socials a:hover { color: var(--on-cobalt); border-color: var(--on-cobalt-line); }
+.contact__socials .social__logo {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  fill: var(--on-cobalt);
+  opacity: 0.85;
+  transition: transform var(--dur) var(--ease-soft), opacity var(--dur) var(--ease-soft);
+}
+.contact__socials a:hover { color: var(--on-cobalt); }
+.contact__socials a:hover .social__logo { transform: translateY(-2px); opacity: 1; }
 
 /* ---------------- Footer ---------------- */
 .footer {

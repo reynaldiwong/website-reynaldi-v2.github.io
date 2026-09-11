@@ -13,7 +13,7 @@ import math
 import os
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 from scipy.ndimage import gaussian_filter
 from scipy.spatial import cKDTree, Delaunay
 
@@ -260,12 +260,39 @@ def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
           f"chain degree mean {deg.mean():.2f}")
 
 
+def build_duotone(name="me-duotone.webp", out="assets/img", black=0.22, gamma=1.35,
+                  max_alpha=0.50, scale=0.50, quality=80, blur=1.4):
+    """Cobalt duotone underlay — the photo's TONE as transparent cobalt ink.
+
+    A line network carries structure but no tone, and a face *is* tone, which is
+    why the lines alone never quite read as a face. This sits behind
+    me-lines.svg to supply the silhouette and the facial shadows, leaving the
+    dots and lines as texture on top. The black point keeps light skin clear, so
+    the ink reads as shading rather than a wash over the whole frame; it is
+    rendered at half resolution and blurred, which is free visually (it is a
+    smooth tone layer the CSS scales back up) and roughly a third of the bytes."""
+    lum = np.array(Image.open(SRC).convert("L")).astype(float) / 255.0
+    tone = np.clip((1.0 - lum - black) / (1.0 - black), 0.0, 1.0) ** gamma
+    alpha = np.clip(tone * max_alpha, 0.0, 1.0)
+    rgba = np.dstack([np.full_like(alpha, 0x1f), np.full_like(alpha, 0x4e),
+                      np.full_like(alpha, 0x8c), alpha * 255]).astype(np.uint8)
+    im = Image.fromarray(rgba, "RGBA").filter(ImageFilter.GaussianBlur(blur))
+    im = im.resize((int(W * scale), int(H * scale)), Image.LANCZOS)
+    path = f"{out}/{name}"
+    im.save(path, "WEBP", quality=quality, method=6)
+    a = np.array(im)[..., 3]
+    print(f"{path}: {os.path.getsize(path) / 1024:.1f} KB, {im.size[0]}x{im.size[1]}, "
+          f"alpha max {a.max() / 255:.2f} (cap {max_alpha}), "
+          f"coverage {(a > 12).mean() * 100:.0f}%")
+
+
 def main():
     build(9, "me-stipple.svg", out="assets/img")     # hero fallback: ~4.5k dots (frozen)
     build(7, "me-stipple-6500.svg")                  # reference densities
     build(11, "me-stipple-3000.svg")
     build_lines(5, "me-lines.svg", out="assets/img")  # hero: contour-traced
     build_lines(7, "me-lines-2500.svg")
+    build_duotone()                                   # tone layer under the hero lines
 
 
 if __name__ == "__main__":
