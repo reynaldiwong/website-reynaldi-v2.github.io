@@ -421,9 +421,9 @@ main b {
 /* the role's qualifier carries the same block. The `·` separator sits outside
    this <em> in the markup, so the block inks the words and not the dot. */
 .hero__role em {
-  background: linear-gradient(var(--cobalt), var(--cobalt)) center / 100% 72% no-repeat;   /* same band as the lead */
+  background: var(--cobalt);  /* same band as the lead */
   color: #fff;
-  padding: 0 0.2em;
+  padding: 0.2em 0.2em;
   font-style: normal;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -482,16 +482,10 @@ main b {
 
 /* ---------------- Boot splash ----------------
    Hidden unless the inline <head> gate put `html.boot` on the root, so with JS off
-   or reduced-motion requested this block is inert and the site renders normally.
-
-   The overlay is `.splash`, NOT `.boot`, and that is load-bearing: the gate sets the
-   class `boot` on the <html> element, so a `.boot { display: none }` rule would also
-   match the root and collapse the entire document to display:none for the length of
-   the splash. Every rect measured 0x0 and the page painted nothing. `boot` is the
-   STATE (only ever used in `html.boot ...` selectors); `splash` is the element. */
-.splash { display: none; }
+   or reduced-motion requested this block is inert and the site renders normally. */
+.boot { display: none; }
 html.boot { overflow: hidden; }        /* nothing scrolls behind the splash */
-html.boot .splash {
+html.boot .boot {
   display: grid;
   position: fixed;
   inset: 0;
@@ -501,9 +495,9 @@ html.boot .splash {
   background: var(--bg);
   transition: opacity 0.4s ease;
 }
-html.boot .splash--out { opacity: 0; pointer-events: none; }
-.splash .terminal { margin-top: 0; width: min(34rem, 100%); }
-.splash__skip {
+html.boot .boot--out { opacity: 0; pointer-events: none; }
+.boot .terminal { margin-top: 0; width: min(34rem, 100%); }
+.boot__skip {
   position: absolute;
   inset: auto 0 clamp(1.25rem, 5vh, 2.75rem);
   text-align: center;
