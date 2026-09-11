@@ -206,11 +206,11 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   position: absolute;
   top: -0.4em;
   left: -0.1em;
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-family: var(--font-mono);   /* reads as an editor/terminal line number */
+  font-weight: 400;
   font-size: var(--fs-numeral);
   line-height: 0.8;
-  letter-spacing: var(--track-display);
+  letter-spacing: -0.02em;
   color: var(--cobalt);
   opacity: 0.28;
   z-index: 0;
@@ -405,15 +405,23 @@ main > section > .container,
   margin-bottom: 1.25rem;
 }
 .about__body strong { font-weight: 600; }   /* colour owned by the highlight rule below */
-/* text-selection style on emphasised copy: solid ink block, inverted text —
-   the same treatment as dragging across a word in an editor. Heading outside
-   the block so the pill hugs the text. */
+/* OS-selection block: solid ink, inverted text, square corners, taller than the
+   line box so it reads as a highlight rather than a pill */
 main strong,
 main b {
   background: var(--cobalt);
   color: #fff;
-  padding: 0 0.15em;
-  border-radius: 3px;
+  padding: 0.12em 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* the lead pull-quote phrase carries the same block — at display size that is
+   a statement, which is the point */
+.about__lead em {
+  background: var(--cobalt);
+  color: #fff;
+  padding: 0.1em 0.15em;
+  font-style: normal;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
@@ -697,13 +705,14 @@ main b {
 }
 .off-duty__body p { color: var(--on-cobalt-soft); font-size: 1.05rem; }
 .off-duty__spotify { margin-top: auto; }
-/* the embed carries Spotify's own 12px radius and full 352px playlist height —
-   so the frame adopts ITS geometry (no second radius, no border seam), rather
-   than clipping a 99px radius card around a differently-drawn player */
+/* the embed carries Spotify's own 12px radius; its height matches the video
+   column by RATIO rather than a fixed number, so both columns stay pixel-equal
+   at every viewport width (the poster is 3:2) */
 .off-duty__spotify iframe {
   display: block;
   width: 100%;
-  height: 352px;
+  height: auto;
+  aspect-ratio: 3 / 2;
   border: 0;
   border-radius: 12px;
 }

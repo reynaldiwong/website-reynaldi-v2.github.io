@@ -80,8 +80,9 @@ def portrait_sheet():
 
 def change_sheet():
     items = [
-        ("D-terminal-card.png", "Terminal card in About — monospace on the cobalt-deep field, 8 lines, blinking cursor"),
-        ("E-highlight.png", "Emphasis is now a selection block: cobalt fill, white text, 3px radius, 8.31:1"),
+        ("G-selection.png", "Selection block: square corners, 0.12em/0.2em padding, and the lead phrase now carries it too — all 8.31:1"),
+        ("F-spotify-match.png", "Spotify column matches the video by ratio (3:2): 312px vs 312px at 1440, 223px vs 223px at 375"),
+        ("H-numerals.png", "Section numerals are ui-monospace now — editor line numbers instead of display serif"),
     ]
     W = 1120
     tiles = []
@@ -100,8 +101,8 @@ def change_sheet():
     for im, cap in tiles:
         canvas.paste(im, (pad, y)); y += im.height + 10
         d.text((pad, y), cap, font=font(24, bold=False), fill=SOFT); y += 50 + gap
-    canvas.save(f"{S}/B-terminal-and-highlight.png", optimize=True)
-    print("B-terminal-and-highlight.png", canvas.size)
+    canvas.save(f"{S}/D-this-round.png", optimize=True)
+    print("D-this-round.png", canvas.size)
 
 
 change_sheet()
