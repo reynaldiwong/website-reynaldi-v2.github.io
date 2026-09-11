@@ -80,31 +80,28 @@ def portrait_sheet():
 
 def change_sheet():
     items = [
-        ("contact-row-1440.png", "Contact: one row — Email me, then LinkedIn · GitHub · Discord inline to its right"),
-        ("spotify-1440.png", "Spotify: frame adopts the embed's own geometry — 12px radius, no border, 352px"),
-        ("highlight-1440.png", "Bold highlight deepened: rgba(31,78,140,.18) from 56% down"),
-        ("numeral-1440.png", "Numeral nudged right: left -0.25em -> 0, top -0.4em held"),
+        ("D-terminal-card.png", "Terminal card in About — monospace on the cobalt-deep field, 8 lines, blinking cursor"),
+        ("E-highlight.png", "Emphasis is now a selection block: cobalt fill, white text, 3px radius, 8.31:1"),
     ]
     W = 1120
     tiles = []
     for name, cap in items:
         im = Image.open(f"{S}/{name}").convert("RGB")
         im = im.resize((W, max(120, int(im.height * W / im.width))), Image.LANCZOS)
-        if im.height > 620:
-            im = im.crop((0, 0, W, 620))
+        if im.height > 700:
+            im = im.crop((0, 0, W, 700))
         tiles.append((box(im), cap))
     top, gap, pad = 78, 34, 40
     H = top + sum(t.height + 60 for t, _ in tiles) + pad
     canvas = Image.new("RGB", (W + pad * 2, H), PAPER)
     d = ImageDraw.Draw(canvas)
-    d.text((pad, 26), "Verified in-browser at 1440px · 375px checked separately", font=font(32), fill=INK)
+    d.text((pad, 26), "Shipped this round · verified in-browser at 1440px and 375px", font=font(32), fill=INK)
     y = top
     for im, cap in tiles:
         canvas.paste(im, (pad, y)); y += im.height + 10
         d.text((pad, y), cap, font=font(24, bold=False), fill=SOFT); y += 50 + gap
-    canvas.save(f"{S}/B-changes.png", optimize=True)
-    print("B-changes.png", canvas.size)
+    canvas.save(f"{S}/B-terminal-and-highlight.png", optimize=True)
+    print("B-terminal-and-highlight.png", canvas.size)
 
 
-portrait_sheet()
 change_sheet()

@@ -404,17 +404,33 @@ main > section > .container,
   font-size: 1.05rem;
   margin-bottom: 1.25rem;
 }
-.about__body strong { color: var(--ink); font-weight: 600; }
-/* marker-style highlight on emphasised copy — lower band only, cloned across
-   line breaks so a wrapped <strong> keeps one continuous stripe */
+.about__body strong { font-weight: 600; }   /* colour owned by the highlight rule below */
+/* text-selection style on emphasised copy: solid ink block, inverted text —
+   the same treatment as dragging across a word in an editor. Heading outside
+   the block so the pill hugs the text. */
 main strong,
 main b {
-  background: linear-gradient(180deg, transparent 56%, rgba(31, 78, 140, 0.18) 56%);
-  padding: 0 0.1em;
-  border-radius: 2px;
+  background: var(--cobalt);
+  color: #fff;
+  padding: 0 0.15em;
+  border-radius: 3px;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+/* inside the cobalt fields the block inverts — a cobalt pill on a cobalt field
+   is invisible (caught on the `<b>~40%</b>` in the experience timeline) */
+.field strong,
+.field b,
+.field--alt strong,
+.field--alt b {
+  background: var(--on-cobalt);
+  color: var(--field);
+}
+/* the real thing, site-wide, so actual text selection matches the theme */
+::selection { background: var(--cobalt); color: #fff; }
+.field ::selection,
+.field--alt ::selection,
+.terminal ::selection { background: var(--on-cobalt); color: var(--field); }
 .about__tagline {
   margin-top: 2rem;
   font-family: var(--font-accent);
@@ -424,6 +440,42 @@ main b {
   font-size: 1.05rem;   /* smaller than body, unattributed pull-quote */
   line-height: 1.55;
   max-width: 52ch;
+}
+
+/* ---------------- Terminal card (inside About) ---------------- */
+.terminal {
+  margin-top: clamp(2rem, 5vw, 3.25rem);
+  background: var(--field);
+  border-radius: var(--r-lg);
+  padding: 1.5rem 1.75rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.78rem, 2.2vw, 0.92rem);   /* keeps the longest line inside the card at 375px */
+  line-height: 1.8;
+  color: var(--on-cobalt);
+  overflow-x: auto;      /* long lines scroll inside the card, never the page */
+}
+.terminal pre {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  white-space: pre;
+}
+.terminal .prompt { color: var(--on-cobalt-soft); }
+.terminal .out    { color: var(--on-cobalt-soft); }
+.terminal .cursor {
+  display: inline-block;
+  width: 0.58em;
+  height: 1.05em;
+  background: var(--on-cobalt);
+  vertical-align: -0.18em;
+  animation: blink 1.1s steps(1, end) infinite;
+}
+@keyframes blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .terminal .cursor { animation: none; opacity: 0.85; }
 }
 
 /* ---------------- Experience (cobalt field) ---------------- */
