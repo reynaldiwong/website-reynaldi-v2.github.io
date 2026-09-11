@@ -331,30 +331,10 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
-  /* Porcelain mat around the duotone: white inset, hairline edge, 26px corner, soft
-     shadow - the same language as the porcelain rim elsewhere. The ::before is the
-     cobalt "signature": a 1px outline offset 8px down-right at 22%, the printer's
-     second mat behind the print.
-
-     Note on what that actually renders: the pseudo is z-index:-1 inside a parent that
-     is only `position: relative` (z-index auto), so it is NOT in a stacking context of
-     its own. The parent's white background paints over the overlapping part, which
-     leaves the offset reading as a cobalt hairline along the bottom-right edges. */
-  padding: 0.5rem;
-  background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-md);
-}
-.hero__portrait-frame::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--cobalt);
-  border-radius: inherit;
-  transform: translate(8px, 8px);
-  opacity: 0.22;
-  z-index: -1;
+  /* Frameless. The mat, border, radius, shadow and cobalt accent are gone; the only thing
+     giving the portrait shape is the <img> rules below. Its highlight stop is the page's
+     own --bg, so the bright end of the duotone dissolves into the porcelain rather than
+     sitting on a plate. */
 }
 .hero__portrait-frame img {
   display: block;

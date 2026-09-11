@@ -24,9 +24,12 @@ from PIL import Image, ImageOps
 
 SRC = "assets/img/me.jpg"
 OUT = "assets/img/me-duotone.webp"
-BLACK = (22, 58, 107)      # #163a6b  cobalt-deep  -> shadows
-WHITE = (220, 231, 244)    # #dce7f4  cobalt-soft  -> highlights
+BLACK = (22, 58, 107)      # #163a6b  cobalt-deep  -> shadows (unchanged)
+WHITE = (247, 246, 242)    # #f7f6f2  the page's own --bg -> highlights
+                           # so the bright end dissolves into the porcelain behind it
 WIDTH = 900                # the hero displays ~449 CSS px wide, so 900 covers a 2x display
+AUTOCONTRAST = True        # stretch the source's real range before colorizing (see below)
+CUTOFF = (1, 1)            # percent clipped at each end first
 QUALITY, METHOD = 86, 6
 
 
@@ -36,6 +39,16 @@ def main():
     if img.width > WIDTH:                      # source may be a full-resolution phone photo
         img = img.resize((WIDTH, round(img.height * WIDTH / img.width)), Image.LANCZOS)
     gray = ImageOps.grayscale(img)
+    if AUTOCONTRAST:
+        # `colorize` is a linear map, so a source whose median sits high pushes almost
+        # everything into the bright half of the ramp and the cobalt-deep end goes unused -
+        # that is what "washed" means here. Stretching first recovers the shadows WITHOUT
+        # crushing the highlights, which dropping the white stop would do.
+        #
+        # The cutoff is load-bearing: this source's raw min/max are already 1/255, so
+        # autocontrast at its default cutoff=0 is a near no-op. Clipping 1% off each end
+        # first (p1..p99 = 41..248) is what makes the stretch actually bite.
+        gray = ImageOps.autocontrast(gray, cutoff=CUTOFF)
     duo = ImageOps.colorize(gray, black=BLACK, white=WHITE).convert("RGB")
     duo.save(OUT, "WEBP", quality=QUALITY, method=METHOD)
 
@@ -51,14 +64,26 @@ def main():
           % (g.min(), lo, np.median(g), hi, g.max()))
     print("  output luminance : min %.1f  mean %.1f  max %.1f  std %.1f"
           % (lum.min(), lum.mean(), lum.max(), lum.std()))
+    # How much of the portrait actually reaches the deep-cobalt half of the ramp. A linear
+    # map on a bright source starves this, which is the measurable form of "washed".
+    deep = 100.0 * (lum < 100).mean()
+    print("  deep-cobalt half : %.1f%% of pixels below luminance 100%s"
+          % (deep, "" if AUTOCONTRAST else "   <- autocontrast off"))
     print("  shadow pixel     : %s   (target %s)" % (np.asarray(duo).reshape(-1, 3)[lum.argmin()].tolist(), list(BLACK)))
     print("  highlight pixel  : %s   (target %s)" % (np.asarray(duo).reshape(-1, 3)[lum.argmax()].tolist(), list(WHITE)))
 
-    # Contrast against the section behind it. The page is porcelain (~245), so highlights
-    # landing near it make the portrait dissolve into the page.
+    # Contrast against the section behind it. With the highlight stop set to the page's own
+    # --bg this is no longer a warning: dissolving into the porcelain is the design. What
+    # matters then is HOW MUCH dissolves, so measure that share instead.
     page = 245.0
-    print("  brightest highlight sits %.1f below the porcelain page (245) -> %s"
-          % (page - lum.max(), "reads against it" if page - lum.max() > 8 else "washes into it"))
+    if tuple(WHITE) == (247, 246, 242):
+        near = 100.0 * (np.abs(d - np.array(WHITE)).max(axis=2) < 4).mean()
+        print("  highlight stop IS the page --bg: %.1f%% of pixels sit within 4/255 of the page" % near)
+        print("  and dissolve into it. Intended; the blue now holds by its shadows, so watch the")
+        print("  deep-cobalt share above - that is the structure.")
+    else:
+        print("  brightest highlight sits %.1f below the porcelain page (245) -> %s"
+              % (page - lum.max(), "reads against it" if page - lum.max() > 8 else "washes into it"))
     if hi - lo < 90:
         print("  NOTE: the source's p1..p99 range is only %.0f/255 - the duotone will read flat;"
               " push the white stop darker or the black stop to #0f2f57." % (hi - lo))
@@ -67,6 +92,16 @@ def main():
               " grayscale %.0f), so the duotone may read washed against the porcelain page."
               " The dial is the white stop." % (lum.mean(), np.median(g)))
 
-
 if __name__ == "__main__":
+    import argparse
+
+    ap = argparse.ArgumentParser(description="Blue duotone for the hero portrait.")
+    ap.add_argument("--out", default=OUT)
+    ap.add_argument("--no-autocontrast", action="store_true",
+                    help="linear map straight from the source (the pre-autocontrast look)")
+    ap.add_argument("--cutoff", default="%d,%d" % CUTOFF, help="autocontrast cutoff, percent per end")
+    a = ap.parse_args()
+    AUTOCONTRAST = not a.no_autocontrast
+    CUTOFF = tuple(int(v) for v in a.cutoff.split(","))
+    OUT = a.out
     main()
