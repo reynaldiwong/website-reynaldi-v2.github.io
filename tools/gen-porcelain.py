@@ -1,9 +1,13 @@
 """Generate the underglaze-blue floral porcelain background.
 
 One-off generator — not shipped as runtime JS. Cobalt ink only (#1f4e8c).
-Ornament is foliage: sprigs (stem + alternating veined leaves) and trailing
-vines, at the rim, with the centre column clear. Stroke widths vary
-0.9-1.6px so it reads hand-painted rather than stamped.
+
+The ornament is ONE connected plant: a serpentine main stem entering and leaving
+off-canvas, with a lower stem, two rim stems and three side-shoots all rooted on
+it at computed points. Nothing floats — every path starts on another path, so
+there are no dangling ends. All stems are cubic-bezier chains with real control
+points (no straight runs); leaves are rooted on the sampled stem polyline and
+turned to its local tangent, so they visibly attach.
 
 Run from repo root:  python tools/gen-porcelain.py
 Outputs assets/img/bg-porcelain.svg
@@ -14,6 +18,8 @@ import random
 
 W, H = 1600, 1200
 COBALT = "#1f4e8c"
+LINE_OP = 0.17          # line-work opacity
+FILL_OP = 0.08          # leaf fill opacity
 SEED = 11
 rng = random.Random(SEED)
 
@@ -23,69 +29,99 @@ def sw():
     return rng.uniform(0.9, 1.6)
 
 
-def leaf(bx, by, tx, ty, width, vein=True):
-    """An elongated pointed-oval leaf (two arcs) with a thin centre vein."""
+def bez(p0, p1, p2, p3, t):
+    """Point on a cubic bezier at parameter t."""
+    mt = 1 - t
+    return (mt ** 3 * p0[0] + 3 * mt * mt * t * p1[0] + 3 * mt * t * t * p2[0] + t ** 3 * p3[0],
+            mt ** 3 * p0[1] + 3 * mt * mt * t * p1[1] + 3 * mt * t * t * p2[1] + t ** 3 * p3[1])
+
+
+def chain(segs, per=26):
+    """Sample a chain of cubic segments into a polyline."""
+    pts = []
+    for (p0, p1, p2, p3) in segs:
+        for k in range(per):
+            pts.append(bez(p0, p1, p2, p3, k / per))
+        pts.append(p3)
+    return pts
+
+
+def path_d(segs):
+    d = [f"M {segs[0][0][0]:.1f} {segs[0][0][1]:.1f}"]
+    for (_, p1, p2, p3) in segs:
+        d.append(f"C {p1[0]:.1f} {p1[1]:.1f} {p2[0]:.1f} {p2[1]:.1f} {p3[0]:.1f} {p3[1]:.1f}")
+    return " ".join(d)
+
+
+def at(pts, u):
+    """Point and tangent at normalised arclength u along a polyline."""
+    seg = [math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1])
+           for i in range(len(pts) - 1)]
+    target, acc = u * sum(seg), 0.0
+    for i, L in enumerate(seg):
+        if acc + L >= target or i == len(seg) - 1:
+            t = (target - acc) / L if L else 0.0
+            p = (pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t,
+                 pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t)
+            return p, math.atan2(pts[i + 1][1] - pts[i][1], pts[i + 1][0] - pts[i][0])
+        acc += L
+    return pts[-1], 0.0
+
+
+def leaf(bx, by, ang, L, width_f=0.30, vein=True):
+    """A pointed-oval leaf rooted at (bx,by), pointing along ang."""
+    tx, ty = bx + math.cos(ang) * L, by + math.sin(ang) * L
     mx, my = (bx + tx) / 2, (by + ty) / 2
-    dx, dy = tx - bx, ty - by
-    L = math.hypot(dx, dy) or 1.0
-    px, py = -dy / L, dx / L
-    c1x, c1y = mx + px * width, my + py * width
-    c2x, c2y = mx - px * width, my - py * width
-    shape = (f'M{bx:.1f} {by:.1f} Q{c1x:.1f} {c1y:.1f} {tx:.1f} {ty:.1f} '
-             f'Q{c2x:.1f} {c2y:.1f} {bx:.1f} {by:.1f} Z')
-    out = [f'<path d="{shape}" fill="{COBALT}" fill-opacity="0.05" '
-           f'stroke-width="{sw():.2f}"/>']
+    w = L * width_f
+    px, py = -math.sin(ang) * w, math.cos(ang) * w
+    shape = (f"M{bx:.1f} {by:.1f} Q{mx + px:.1f} {my + py:.1f} {tx:.1f} {ty:.1f} "
+             f"Q{mx - px:.1f} {my - py:.1f} {bx:.1f} {by:.1f} Z")
+    out = [f'<path d="{shape}" fill="{COBALT}" fill-opacity="{FILL_OP}" '
+           f'stroke="{COBALT}" stroke-opacity="{LINE_OP}" stroke-width="{sw():.2f}"/>']
     if vein:
-        out.append(f'<path d="M{bx:.1f} {by:.1f} L{tx:.1f} {ty:.1f}" '
-                   f'fill="none" stroke-width="0.5"/>')
+        out.append(f'<path d="M{bx:.1f} {by:.1f} L{tx:.1f} {ty:.1f}" fill="none" '
+                   f'stroke="{COBALT}" stroke-opacity="{LINE_OP}" stroke-width="0.5"/>')
     return "".join(out)
 
 
-def sprig(cx, cy, angle, scale, n=6):
-    """A short bowed stem with alternating veined leaves — a leaf sprig."""
-    length = 175 * scale
-    rad = math.radians(angle)
-    ex = cx + math.cos(rad) * length
-    ey = cy + math.sin(rad) * length
-    nx, ny = -math.sin(rad), math.cos(rad)
-    bow = 0.16 * length
-    mx = (cx + ex) / 2 + nx * bow
-    my = (cy + ey) / 2 + ny * bow
-    parts = [f'<path d="M{cx:.1f} {cy:.1f} Q{mx:.1f} {my:.1f} {ex:.1f} {ey:.1f}" '
-             f'fill="none" stroke="{COBALT}" stroke-opacity="0.12" '
-             f'stroke-width="{sw():.2f}"/>']
-    for i in range(n):
-        t = 0.16 + 0.78 * i / max(1, n - 1)
-        sx = (1 - t) ** 2 * cx + 2 * (1 - t) * t * mx + t * t * ex
-        sy = (1 - t) ** 2 * cy + 2 * (1 - t) * t * my + t * t * ey
-        side = -1 if i % 2 == 0 else 1
-        lang = math.radians(angle + side * 56 - 12)
-        llen = (56 - 5 * i) * scale
-        tipx = sx + math.cos(lang) * llen
-        tipy = sy + math.sin(lang) * llen
-        parts.append(leaf(sx, sy, tipx, tipy, llen * 0.26))
-    return "".join(parts)
-
-
-def vine(d, leaves, stroke_op=0.12):
-    """One curling cubic-bezier stem trailing leaves."""
-    g = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="{stroke_op}" stroke-width="1.2">',
-         f'<path d="{d}"/>']
-    for (bx, by, ang, L) in leaves:
-        tipx = bx + math.cos(math.radians(ang)) * L
-        tipy = by + math.sin(math.radians(ang)) * L
-        g.append(leaf(bx, by, tipx, tipy, L * 0.26))
-    g.append("</g>")
+def branch(segs, leaves, width=1.2):
+    """A stem (cubic chain) with leaves rooted on it at arclength positions."""
+    pts = chain(segs)
+    g = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="{LINE_OP}" stroke-width="{width}">',
+         f'<path d="{path_d(segs)}"/>', "</g>"]
+    for (u, off, L) in leaves:
+        (x, y), tan = at(pts, u)
+        g.append(leaf(x, y, tan + math.radians(off), L))
     return "".join(g)
+
+
+def sprig(pts, u, off, scale, n=6):
+    """A bowed side-shoot rooted on the parent stem at arclength u."""
+    (bx, by), tan = at(pts, u)
+    a = tan + math.radians(off)
+    length = 150 * scale
+    ex, ey = bx + math.cos(a) * length, by + math.sin(a) * length
+    bow = 0.20 * length
+    mx = (bx + ex) / 2 - math.sin(a) * bow
+    my = (by + ey) / 2 + math.cos(a) * bow
+    parts = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="{LINE_OP}" stroke-width="1.1">',
+             f'<path d="M{bx:.1f} {by:.1f} Q{mx:.1f} {my:.1f} {ex:.1f} {ey:.1f}"/>', "</g>"]
+    for i in range(n):
+        t = 0.18 + 0.76 * i / max(1, n - 1)
+        sx = (1 - t) ** 2 * bx + 2 * (1 - t) * t * mx + t * t * ex
+        sy = (1 - t) ** 2 * by + 2 * (1 - t) * t * my + t * t * ey
+        side = -1 if i % 2 == 0 else 1
+        parts.append(leaf(sx, sy, a + math.radians(side * 58 - 10), (54 - 4 * i) * scale))
+    return "".join(parts)
 
 
 def rim():
     """Thin double rule plus a repeating petal band near the outer edge."""
-    g = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="0.08">',
+    g = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="{LINE_OP}">',
          f'<rect x="18" y="18" width="{W - 36}" height="{H - 36}" rx="26" stroke-width="1"/>',
          f'<rect x="30" y="30" width="{W - 60}" height="{H - 60}" rx="18" stroke-width="0.6"/>',
          "</g>",
-         f'<g fill="none" stroke="{COBALT}" stroke-opacity="0.08" stroke-width="0.8">']
+         f'<g fill="none" stroke="{COBALT}" stroke-opacity="{LINE_OP}" stroke-width="0.8">']
     for x in range(90, W - 60, 92):
         for y in (40, H - 40):
             g.append(f'<path d="M{x} {y} q14 -14 28 0 q-14 14 -28 0 Z"/>')
@@ -99,34 +135,45 @@ def wrap(body):
 
 
 def main():
-    left_vine = vine(
-        "M 34 130 C 210 330, -50 560, 118 742 S 40 1030, 168 1130",
-        [(150, 290, 205, 66), (28, 470, 150, 58), (60, 620, 215, 62),
-         (120, 800, 220, 66), (40, 940, 155, 58), (70, 1050, 150, 62)],
-    )
-    right_vine = vine(
-        f"M {W - 26} 280 C {W - 210} 452, {W + 40} 640, {W - 150} 812 "
-        f"S {W - 50} 1010, {W - 190} 1160",
-        [(W - 150, 420, 330, 64), (W - 40, 560, 300, 58),
-         (W - 30, 660, 300, 62), (W - 170, 900, 340, 66),
-         (W - 90, 1030, 320, 58)],
-    )
-    upper_branch = vine(
-        "M 250 330 C 600 235, 980 305, 1345 220",
-        [(470, 258, 250, 54), (700, 266, 246, 56),
-         (960, 278, 242, 52), (1185, 240, 240, 54)],
-    )
-    lower_branch = vine(
-        "M 260 935 C 620 1010, 980 895, 1335 980",
-        [(490, 970, 66, 54), (720, 966, 66, 56),
-         (965, 938, 66, 52), (1185, 988, 66, 54)],
-    )
+    # serpentine main stem — enters off-canvas left, sweeps the middle, exits right
+    main_segs = [
+        ((-70, 262), (240, 148), (430, 330), (665, 432)),
+        ((665, 432), (900, 536), (1085, 566), (1295, 498)),
+        ((1295, 498), (1495, 430), (1598, 628), (1700, 556)),
+    ]
+    main_pts = chain(main_segs)
+
+    # lower stem branches off the main one at a shared junction point
+    jx, jy = bez(*main_segs[2], 0.60)
+    lower_segs = [
+        ((jx, jy), (jx - 250, jy + 190), (1230, 892), (925, 916)),
+        ((925, 916), (620, 940), (400, 1042), (150, 1108)),
+        ((150, 1108), (-80, 1160), (-140, 970), (-210, 1036)),
+    ]
+    lower_pts = chain(lower_segs)
+
+    # rim stems take off from points on the main stem — they meet, not merge
+    lx, ly = bez(*main_segs[0], 0.20)
+    left_segs = [
+        ((lx, ly), (lx - 210, ly + 170), (58, 640), (100, 826)),
+        ((100, 826), (140, 1006), (30, 1130), (156, 1192)),
+    ]
+    rx, ry = bez(*main_segs[2], 0.90)
+    right_segs = [
+        ((rx, ry), (rx - 60, ry + 150), (1480, 700), (1404, 872)),
+        ((1404, 872), (1330, 1042), (1610, 1084), (1566, 1195)),
+    ]
+
     body = (
-        sprig(1430, 210, -150, 1.35, 6) +    # upper right
-        sprig(180, 1080, -28, 1.2, 6) +      # lower left
-        sprig(1520, 620, 168, 0.95, 5) +     # right edge
-        upper_branch + lower_branch +        # long branches through the middle
-        left_vine + right_vine
+        branch(main_segs, [(0.06, 38, 62), (0.22, -42, 68), (0.38, 40, 64),
+                           (0.55, -44, 70), (0.72, 42, 62), (0.88, -40, 66)], width=1.5) +
+        branch(lower_segs, [(0.14, -40, 62), (0.36, 42, 66),
+                            (0.58, -42, 62), (0.80, 40, 64)]) +
+        branch(left_segs, [(0.18, 46, 64), (0.44, -46, 60), (0.70, 48, 62)]) +
+        branch(right_segs, [(0.20, -46, 62), (0.48, 46, 60), (0.76, -44, 62)]) +
+        sprig(main_pts, 0.30, 58, 1.45, 6) +     # upper side-shoot, reaching inward
+        sprig(main_pts, 0.66, -62, 1.15, 5) +    # lower side-shoot
+        sprig(lower_pts, 0.46, 60, 1.05, 5)      # lower stem side-shoot
     )
     svg = wrap(body)
     rim_svg = wrap(rim())

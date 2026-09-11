@@ -43,6 +43,10 @@ html {
   scroll-behavior: smooth;
   overflow-x: hidden; /* off-canvas drawer is fixed → clip viewport x-overflow */
   overflow-x: clip;
+  /* Keep an explicit canvas colour so body's background is NOT propagated to the
+     canvas — a propagated body background is not part of the blending backdrop,
+     and the accent's multiply layer would have nothing to blend against. */
+  background-color: var(--bg);
 }
 
 @media (prefers-reduced-motion: reduce) {

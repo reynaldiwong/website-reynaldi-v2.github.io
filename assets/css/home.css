@@ -2,28 +2,46 @@
    home.css — Page composition & components (A+C editorial cobalt)
    ============================================================ */
 
-/* ---------------- Underglaze floral porcelain background ---------------- */
-.porcelain {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: url('../img/bg-porcelain.svg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  transform: translateZ(0); /* GPU layer — no per-scroll repaint */
-}
-/* porcelain rim — thin double rule + petal band, wide viewports only */
-.porcelain::after {
-  content: '';
+/* ---------------- Underglaze accent — one artwork, two inks ----------------
+   bg-porcelain.svg is painted twice, fixed and perfectly aligned: cobalt x
+   multiply (renders over porcelain, self-erases over the cobalt fields) and
+   on-cobalt x screen (invisible on porcelain, white over the fields). The field
+   bands carry a porcelain->field gradient so the two inks cross-fade and the
+   leaves read as a single motif changing colour.
+   Nothing that isolates blending may sit between .accent and the section
+   backgrounds, so the wrapper stays z-index: auto — position: fixed would create
+   a stacking context and the blend would have an empty backdrop. */
+.accent {
   position: absolute;
   inset: 0;
+  z-index: auto;
+  pointer-events: none;
+}
+.accent__ink,
+.accent__light {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask: url('../img/bg-porcelain.svg') center / cover no-repeat;
+  mask: url('../img/bg-porcelain.svg') center / cover no-repeat;
+}
+.accent__ink   { background: var(--cobalt);    mix-blend-mode: multiply; }
+.accent__light { background: var(--on-cobalt); mix-blend-mode: screen; }
+@supports not (mix-blend-mode: screen) {
+  .accent__light { display: none; }  /* degrade to cobalt-only, never black ghosts */
+}
+
+/* porcelain rim — thin double rule + petal band, wide viewports only */
+.accent::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
   background: url('../img/bg-porcelain-rim.svg') center / cover no-repeat;
   display: none;
 }
 @media (min-width: 1000px) {
-  .porcelain::after { display: block; }
+  .accent::after { display: block; }
 }
 
 /* ---------------- Grain overlay ---------------- */
@@ -78,13 +96,12 @@ body::after {
   justify-content: space-between;
 }
 .nav__brand {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
   color: var(--ink);
 }
-.nav__brand .dot { color: var(--cobalt); }
 .nav__links {
   display: flex;
   align-items: center;
@@ -113,7 +130,10 @@ body::after {
 }
 .nav__links a:hover { color: var(--cobalt); }
 .nav__links a:hover::after { transform: scaleX(1); }
-.nav__cta {
+/* `.nav__links a` (0,1,1) outranks a bare `.nav__cta` (0,1,0), which is why the
+   pill inherited --ink-soft and rendered 1.16:1 on cobalt. Match its weight and
+   sit after the link rules so the white actually wins. */
+.nav__links a.nav__cta {
   font-family: var(--font-ui);
   font-weight: 600;
   font-size: 0.9rem;
@@ -123,7 +143,7 @@ body::after {
   color: #fff;
   transition: background-color var(--dur) var(--ease-soft), transform var(--dur) var(--ease-soft);
 }
-.nav__cta:hover { background: var(--cobalt-deep); transform: translateY(-1px); }
+.nav__links a.nav__cta:hover { color: #fff; background: var(--cobalt-deep); transform: translateY(-1px); }
 
 .nav__toggle {
   display: none;
@@ -203,9 +223,17 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   color: var(--ink);
 }
 
-/* Field band (cobalt) — contrast guard: never use --muted/--faint here */
+/* Field band (cobalt) — contrast guard: never use --muted/--faint here.
+   Flat fill, hard edge. It must be the section's own background: it then paints
+   in the block-background pass, above the body colour and below the blended
+   accent. A z-index: -1 pseudo-element drops it *below* the body background and
+   the band disappears. */
 .field { background: var(--field); }
 .field--alt { background: var(--field-2); }
+
+/* Content paints above the blended accent layers */
+main > section > .container,
+.footer > .container { position: relative; z-index: 1; }
 .field .section-head .num,
 .field--alt .section-head .num { color: var(--on-cobalt); opacity: 0.35; }
 .field .section-head h2,
@@ -527,45 +555,23 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   border-color: var(--cobalt-soft);
   box-shadow: var(--shadow-md);
 }
-.stack__card img { width: 44px; height: 44px; object-fit: contain; transition: transform var(--dur) var(--ease-soft); }
-.stack__card:hover img { transform: scale(1.1); }
-.stack__card span { font-family: var(--font-ui); font-weight: 600; font-size: 0.9rem; color: var(--ink-soft); }
-
-/* ---------------- Marquee (monochrome tool logos, aria-hidden) ---------------- */
-.marquee {
-  overflow: hidden;
-  white-space: nowrap;
-  background: var(--bg);
-  border-block: 1px solid var(--line);
-  padding-block: 1.5rem;
-}
-.marquee__track {
-  display: inline-flex;
-  align-items: center;
-  gap: 3.5rem;
-  padding-right: 3.5rem;
-  animation: marquee 36s linear infinite;
-  will-change: transform;
-}
-.marquee__logo {
-  width: 30px;
-  height: 30px;
+.stack__logo {
+  width: 44px;
+  height: 44px;
   flex: none;
   fill: var(--cobalt);
-  opacity: 0.55;
+  opacity: 0.75;
+  transition: transform var(--dur) var(--ease-soft), opacity var(--dur) var(--ease-soft);
 }
-/* hidden inline SVG sprite */
+.stack__card:hover .stack__logo { transform: scale(1.1); opacity: 1; }
+.stack__card span { font-family: var(--font-ui); font-weight: 600; font-size: 0.9rem; color: var(--ink-soft); }
+
+/* hidden inline SVG sprite (shared by the stack grid) */
 .logo-sprite {
   position: absolute;
   width: 0;
   height: 0;
   overflow: hidden;
-}
-@keyframes marquee {
-  to { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee__track { animation: none; }
 }
 
 /* ---------------- Off-duty (cobalt-deep) ---------------- */
@@ -627,26 +633,6 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   background: transparent;   /* the section is now the cobalt field band */
   border-radius: var(--r-xl);
   padding: clamp(2rem, 6vw, 4rem);
-}
-.contact__panel::before {
-  content: '';
-  position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  border: 1.5px solid var(--on-cobalt-line);
-}
-.contact__panel::after {
-  content: '';
-  position: absolute;
-  bottom: -80px;
-  left: 30%;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  border: 1.5px solid var(--on-cobalt-line);
 }
 .contact__panel .eyebrow { color: var(--on-cobalt-soft); }
 .contact__panel .eyebrow::before { background: var(--on-cobalt-soft); }
