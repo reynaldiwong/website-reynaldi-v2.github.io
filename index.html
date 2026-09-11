@@ -19,8 +19,9 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
   <!-- Preload above-the-fold fonts -->
-  <link rel="preload" href="assets/fonts/cormorant-garamond-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/anton-400.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/cormorant-garamond-600-italic.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/img/me.webp" as="image" />
 
   <script>document.documentElement.classList.add('js');</script>
@@ -29,6 +30,31 @@
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/base.css" />
   <link rel="stylesheet" href="assets/css/home.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Reynaldi Wong",
+    "alternateName": "Rey",
+    "jobTitle": "DevOps Engineer",
+    "url": "https://reynaldiwong.com/",
+    "sameAs": [
+      "https://linkedin.com/in/reynaldiwong/",
+      "https://github.com/reynaldiwong/"
+    ],
+    "hasCredential": {
+      "@type": "EducationalOccupationalCredential",
+      "name": "CKAD: Certified Kubernetes Application Developer",
+      "credentialCategory": "certification",
+      "recognizedBy": { "@type": "Organization", "name": "The Linux Foundation" },
+      "validFrom": "2026-08-27",
+      "validUntil": "2028-08-26",
+      "identifier": "LF-eqa93ov0sp",
+      "url": "https://www.credly.com/badges/67895f13-75d1-4558-872f-4fa44123c2aa"
+    }
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#home">Skip to content</a>
@@ -64,24 +90,11 @@
       <div class="container hero__grid">
         <div class="hero__text">
           <div class="eyebrow hero__kicker" data-reveal>// DevOps Engineer</div>
-          <h1 class="hero__json" id="hero-json" data-reveal aria-label="Reynaldi Wong, DevOps Engineer, origin Mechatronics Engineering">{
-  "name": "Reynaldi Wong",
-  "class": "DevOps Engineer",
-  "origin": "Mechatronics Engineering",
-  "playtime": {
-    "years": 4,
-    "months": 1,
-    "days": 12,
-    "hours": 0,
-    "minutes": 0,
-    "seconds": 0
-  }
-}</h1>
-          <a class="hero__scroll" href="#about" data-reveal data-reveal-delay="120">
-            <span>scroll</span><span class="arrow">↓</span>
-          </a>
+          <h1 class="hero__name">Reynaldi Wong</h1>
+          <p class="hero__role" data-reveal>DevOps &amp; Platform Engineer <em>· Mechatronics origin</em></p>
+          <a class="hero__scroll" href="#about" data-reveal data-reveal-delay="120"><span>scroll</span><span class="arrow">↓</span></a>
         </div>
-        <div class="hero__portrait" data-reveal="right">
+        <div class="hero__portrait">
           <div class="hero__portrait-frame">
             <picture>
               <source srcset="assets/img/me.webp" type="image/webp" />
@@ -97,7 +110,7 @@
     <section class="about" id="about">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="num">01</span>
+          <span class="num" aria-hidden="true">01</span>
           <h2>About</h2>
         </div>
         <div class="about__grid">
@@ -118,11 +131,11 @@
       </div>
     </section>
 
-    <!-- ============ EXPERIENCE ============ -->
-    <section class="experience" id="experience">
+    <!-- ============ EXPERIENCE (cobalt field) ============ -->
+    <section class="experience field" id="experience">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="num">02</span>
+          <span class="num" aria-hidden="true">02</span>
           <h2>Work Experience</h2>
         </div>
         <div class="timeline">
@@ -157,11 +170,36 @@
       </div>
     </section>
 
-    <!-- ============ STACK ============ -->
+    <!-- ============ CERTIFICATIONS ============ -->
+    <section class="certs" id="certifications">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="num" aria-hidden="true">03</span>
+          <h2>Certifications</h2>
+        </div>
+        <article class="cert-card" data-reveal data-expires="2028-08-26">
+          <div class="cert-card__badge">
+            <picture>
+              <source srcset="assets/img/badges/ckad-credly.webp" type="image/webp" />
+              <img src="assets/img/badges/ckad-credly.png" alt="CKAD: Certified Kubernetes Application Developer badge" width="336" height="176" loading="lazy" />
+            </picture>
+          </div>
+          <div class="cert-card__body">
+            <h3 class="cert-card__title">CKAD: Certified Kubernetes Application Developer</h3>
+            <p class="cert-card__issuer">The Linux Foundation</p>
+            <p class="cert-card__meta">Issued Aug 2026 · Expires Aug 2028 · <span class="id">Cert ID LF-eqa93ov0sp</span></p>
+            <hr class="cert-card__rule" />
+            <a class="cert-card__verify" href="https://www.credly.com/badges/67895f13-75d1-4558-872f-4fa44123c2aa" target="_blank" rel="noopener noreferrer">Verify on Credly ↗</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ STACK (halftone) ============ -->
     <section class="stack" id="stack">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="num">03</span>
+          <span class="num" aria-hidden="true">04</span>
           <h2>Stuff I Have Worked With</h2>
         </div>
         <p class="stack__sub" data-reveal>(But still learning to master them)</p>
@@ -179,21 +217,33 @@
       </div>
     </section>
 
-    <!-- ============ OFF-DUTY ============ -->
-    <section class="off-duty" id="off-duty">
+    <!-- ============ MARQUEE (outline divider) ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Kubernetes</span><span class="sep">·</span><span>Docker</span><span class="sep">·</span><span>Jenkins</span><span class="sep">·</span><span>GCP</span><span class="sep">·</span>
+        <span>Kubernetes</span><span class="sep">·</span><span>Docker</span><span class="sep">·</span><span>Jenkins</span><span class="sep">·</span><span>GCP</span><span class="sep">·</span>
+        <span>Kubernetes</span><span class="sep">·</span><span>Docker</span><span class="sep">·</span><span>Jenkins</span><span class="sep">·</span><span>GCP</span><span class="sep">·</span>
+        <span>Kubernetes</span><span class="sep">·</span><span>Docker</span><span class="sep">·</span><span>Jenkins</span><span class="sep">·</span><span>GCP</span><span class="sep">·</span>
+        <span>Kubernetes</span><span class="sep">·</span><span>Docker</span><span class="sep">·</span><span>Jenkins</span><span class="sep">·</span><span>GCP</span><span class="sep">·</span>
+        <span>Kubernetes</span><span class="sep">·</span><span>Docker</span><span class="sep">·</span><span>Jenkins</span><span class="sep">·</span><span>GCP</span><span class="sep">·</span>
+      </div>
+    </div>
+
+    <!-- ============ OFF-DUTY (cobalt-deep) ============ -->
+    <section class="off-duty field--alt" id="off-duty">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="num">04</span>
+          <span class="num" aria-hidden="true">05</span>
           <h2>&gt; Out of the Terminal</h2>
         </div>
         <div class="off-duty__grid">
-          <div class="off-duty__panel off-duty__media" data-reveal>
+          <div class="off-duty__media" data-reveal>
             <video autoplay loop muted playsinline preload="metadata" poster="assets/img/off-duty-poster.webp">
               <source src="assets/img/off-duty.webm" type="video/webm" />
             </video>
             <div class="off-duty__caption">🎮 Gaming mode</div>
           </div>
-          <div class="off-duty__panel off-duty__body" data-reveal data-reveal-delay="80">
+          <div class="off-duty__body" data-reveal data-reveal-delay="80">
             <div>
               <div class="vibe">Vibin' while working 🎧</div>
               <p>Outside work, I'm a person of simple pleasures. I love to play video games. 🎮</p>
@@ -211,11 +261,11 @@
       </div>
     </section>
 
-    <!-- ============ CONTACT ============ -->
+    <!-- ============ CONTACT (full cobalt CTA) ============ -->
     <section class="contact" id="contact">
       <div class="container">
         <div class="contact__panel" data-reveal="scale">
-          <span class="eyebrow">05 · Get in touch</span>
+          <span class="eyebrow">06 · Get in touch</span>
           <h2>Let's automate something together.</h2>
           <p>Anyway, feel free to get in touch with me. Whether you have a question, a project idea, or just want to say hi, I'd love to hear from you!</p>
           <div class="contact__actions">
@@ -244,6 +294,5 @@
   </script>
   <script src="assets/js/reveal.js" defer></script>
   <script src="assets/js/nav.js" defer></script>
-  <script src="assets/js/hero.js" defer></script>
 </body>
 </html>

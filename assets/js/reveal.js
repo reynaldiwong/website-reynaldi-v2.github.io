@@ -30,4 +30,12 @@
       observer.observe(el);
     }
   });
+
+  // P3: pause looping media for reduced-motion users
+  if (reduceMotion) {
+    Array.prototype.forEach.call(document.querySelectorAll('video[autoplay]'), function (v) {
+      v.pause();
+      v.removeAttribute('autoplay');
+    });
+  }
 })();

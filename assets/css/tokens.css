@@ -1,6 +1,7 @@
 /* ============================================================
    tokens.css — Porcelain design tokens (blue & white)
    Single source of truth for color, type, radius, shadow, motion.
+   Direction: B+C hybrid (poster cobalt — Anton display + Cormorant italic).
    ============================================================ */
 
 :root {
@@ -13,13 +14,24 @@
   /* ---- Cobalt inks (blue & white palette) ---- */
   --ink:           #14263f;   /* near-navy text */
   --ink-soft:      #33465f;   /* secondary heading */
-  --muted:         #526178;   /* body / secondary text (AA on porcelain) */
-  --faint:         #5c6b7f;   /* eyebrow / captions (AA on porcelain) */
+  --muted:         #526178;   /* body / secondary text (AA on porcelain ONLY) */
+  --faint:         #5c6b7f;   /* eyebrow / captions (AA on porcelain ONLY) */
 
   /* ---- Cobalt accent ---- */
   --cobalt:        #1f4e8c;
   --cobalt-deep:   #163a6b;
   --cobalt-soft:   #dce7f4;   /* accent tint background */
+
+  /* ---- Cobalt FIELD (B+C poster panels) ---- */
+  --field:         #0f2f57;   /* deep cobalt section field */
+  --field-2:       #123a68;   /* field lift / hover */
+  --on-cobalt:       #f4f7fb;   /* primary text on field (12.49:1) */
+  --on-cobalt-soft:  #b9cde4;   /* secondary text on field (8.26:1) */
+  --on-cobalt-line:  rgba(244, 247, 251, 0.18);
+
+  /* ---- Texture ---- */
+  --grain:     0.03;                       /* SVG grain opacity */
+  --halftone:  rgba(31, 78, 140, 0.12);    /* dot-field tint */
 
   /* ---- Lines ---- */
   --line:          #e0e6ed;
@@ -38,9 +50,16 @@
   --shadow-lg: 0 24px 60px rgba(20, 38, 63, 0.14);
 
   /* ---- Typography ---- */
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-display: 'Anton', Impact, 'Arial Narrow', sans-serif;          /* headings, hero, numerals */
+  --font-accent:  'Cormorant Garamond', Georgia, 'Times New Roman', serif; /* italic accent */
   --font-body:    'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono:    ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', 'Fira Mono', Menlo, monospace;
+
+  /* ---- Display type scale ---- */
+  --fs-hero:    clamp(3rem, 11vw, 10rem);
+  --fs-section: clamp(2rem, 6vw, 4.5rem);
+  --fs-numeral: clamp(4rem, 12vw, 9rem);
+  --track-display: -0.035em;   /* display only — never body */
 
   /* ---- Motion ---- */
   --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
