@@ -360,6 +360,7 @@ main > section > .container,
   display: block;
   width: 100%;
   height: auto;
+  border-radius: var(--r-lg);
   aspect-ratio: 1 / 1;          /* square presentation; object-fit crops the 528x704 source */
   object-fit: cover;
   animation: inkBreathe 6s ease-in-out infinite;
