@@ -1,12 +1,13 @@
 """Generate the underglaze-blue floral porcelain background.
 
-One-off generator — not shipped as runtime JS. Cobalt ink only (#1f4e8c),
-no new colours. Ornament sits at the rim; the centre column stays clear.
-Stroke widths vary 0.9-1.6px so the peonies read hand-painted, not stamped.
+One-off generator — not shipped as runtime JS. Cobalt ink only (#1f4e8c).
+Ornament is foliage: sprigs (stem + alternating veined leaves) and trailing
+vines, at the rim, with the centre column clear. Stroke widths vary
+0.9-1.6px so it reads hand-painted rather than stamped.
 
 Run from repo root:  python tools/gen-porcelain.py
-Outputs assets/img/bg-porcelain.svg (blooms + vine)
-        assets/img/bg-porcelain-rim.svg (rim band, wide viewports)
+Outputs assets/img/bg-porcelain.svg
+        assets/img/bg-porcelain-rim.svg
 """
 import math
 import random
@@ -22,46 +23,58 @@ def sw():
     return rng.uniform(0.9, 1.6)
 
 
-def ell(cx, cy, rx, ry, rot, width):
-    return (f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" '
-            f'transform="rotate({rot:.1f} {cx:.1f} {cy:.1f})" '
-            f'stroke-width="{width:.2f}"/>')
+def leaf(bx, by, tx, ty, width, vein=True):
+    """An elongated pointed-oval leaf (two arcs) with a thin centre vein."""
+    mx, my = (bx + tx) / 2, (by + ty) / 2
+    dx, dy = tx - bx, ty - by
+    L = math.hypot(dx, dy) or 1.0
+    px, py = -dy / L, dx / L
+    c1x, c1y = mx + px * width, my + py * width
+    c2x, c2y = mx - px * width, my - py * width
+    shape = (f'M{bx:.1f} {by:.1f} Q{c1x:.1f} {c1y:.1f} {tx:.1f} {ty:.1f} '
+             f'Q{c2x:.1f} {c2y:.1f} {bx:.1f} {by:.1f} Z')
+    out = [f'<path d="{shape}" fill="{COBALT}" fill-opacity="0.05" '
+           f'stroke-width="{sw():.2f}"/>']
+    if vein:
+        out.append(f'<path d="M{bx:.1f} {by:.1f} L{tx:.1f} {ty:.1f}" '
+                   f'fill="none" stroke-width="0.5"/>')
+    return "".join(out)
 
 
-def blooming(cx, cy, s, fill_op=0.05, stroke_op=0.14):
-    """Peony bloom: overlapping ellipse petals around a centre."""
-    g = [f'<g fill="{COBALT}" fill-opacity="{fill_op}" stroke="{COBALT}" '
-         f'stroke-opacity="{stroke_op}">']
-    rings = [((6, 98, 52, 98), 0), ((7, 62, 36, 62), 22), ((5, 32, 22, 32), 10)]
-    for (n, r, rx, ry), off in rings:
-        for i in range(n):
-            a = off + i * 360.0 / n
-            rad = math.radians(a)
-            px = cx + math.cos(rad) * r * s
-            py = cy + math.sin(rad) * r * s
-            g.append(ell(px, py, rx * s, ry * s, a, sw()))
-    g.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{15 * s:.1f}" stroke-width="{sw():.2f}"/>')
-    g.append("</g>")
-    return "".join(g)
-
-
-def leaf(bx, by, ang, L, wdt):
-    tipx = bx + math.cos(math.radians(ang)) * L
-    tipy = by + math.sin(math.radians(ang)) * L
-    mx = bx + math.cos(math.radians(ang)) * L / 2
-    my = by + math.sin(math.radians(ang)) * L / 2
-    px, py = -math.sin(math.radians(ang)) * wdt, math.cos(math.radians(ang)) * wdt
-    return (f'M{bx:.0f} {by:.0f} Q{mx + px:.0f} {my + py:.0f} {tipx:.0f} {tipy:.0f} '
-            f'Q{mx - px:.0f} {my - py:.0f} {bx:.0f} {by:.0f} Z')
+def sprig(cx, cy, angle, scale, n=6):
+    """A short bowed stem with alternating veined leaves — a leaf sprig."""
+    length = 175 * scale
+    rad = math.radians(angle)
+    ex = cx + math.cos(rad) * length
+    ey = cy + math.sin(rad) * length
+    nx, ny = -math.sin(rad), math.cos(rad)
+    bow = 0.16 * length
+    mx = (cx + ex) / 2 + nx * bow
+    my = (cy + ey) / 2 + ny * bow
+    parts = [f'<path d="M{cx:.1f} {cy:.1f} Q{mx:.1f} {my:.1f} {ex:.1f} {ey:.1f}" '
+             f'fill="none" stroke="{COBALT}" stroke-opacity="0.12" '
+             f'stroke-width="{sw():.2f}"/>']
+    for i in range(n):
+        t = 0.16 + 0.78 * i / max(1, n - 1)
+        sx = (1 - t) ** 2 * cx + 2 * (1 - t) * t * mx + t * t * ex
+        sy = (1 - t) ** 2 * cy + 2 * (1 - t) * t * my + t * t * ey
+        side = -1 if i % 2 == 0 else 1
+        lang = math.radians(angle + side * 56 - 12)
+        llen = (56 - 5 * i) * scale
+        tipx = sx + math.cos(lang) * llen
+        tipy = sy + math.sin(lang) * llen
+        parts.append(leaf(sx, sy, tipx, tipy, llen * 0.26))
+    return "".join(parts)
 
 
 def vine(d, leaves, stroke_op=0.12):
-    """One curling cubic-bezier stem with small leaves."""
+    """One curling cubic-bezier stem trailing leaves."""
     g = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="{stroke_op}" stroke-width="1.2">',
          f'<path d="{d}"/>']
-    for (bx, by, ang) in leaves:
-        g.append(f'<path d="{leaf(bx, by, ang, 74, 22)}" stroke-width="{sw():.2f}" '
-                 f'fill="{COBALT}" fill-opacity="0.04"/>')
+    for (bx, by, ang, L) in leaves:
+        tipx = bx + math.cos(math.radians(ang)) * L
+        tipy = by + math.sin(math.radians(ang)) * L
+        g.append(leaf(bx, by, tipx, tipy, L * 0.26))
     g.append("</g>")
     return "".join(g)
 
@@ -87,29 +100,30 @@ def wrap(body):
 
 def main():
     left_vine = vine(
-        "M 34 150 C 210 330, -50 560, 118 742 S 40 1030, 168 1130",
-        [(150, 300, 210), (30, 560, 160), (120, 800, 220), (60, 1010, 150)],
+        "M 34 130 C 210 330, -50 560, 118 742 S 40 1030, 168 1130",
+        [(150, 290, 205, 66), (28, 470, 150, 58), (60, 620, 215, 62),
+         (120, 800, 220, 66), (40, 940, 155, 58), (70, 1050, 150, 62)],
     )
     right_vine = vine(
-        f"M {W - 26} 300 C {W - 210} 452, {W + 40} 640, {W - 150} 812 "
+        f"M {W - 26} 280 C {W - 210} 452, {W + 40} 640, {W - 150} 812 "
         f"S {W - 50} 1010, {W - 190} 1160",
-        [(W - 150, 440, 330), (W - 30, 660, 300), (W - 170, 900, 340)],
+        [(W - 150, 420, 330, 64), (W - 40, 560, 300, 58),
+         (W - 30, 660, 300, 62), (W - 170, 900, 340, 66),
+         (W - 90, 1030, 320, 58)],
     )
     body = (
-        blooming(1480, 70, 1.5) +        # top-right, bleeding off the corner
-        blooming(80, 1120, 1.15) +       # bottom-left
-        blooming(1580, 1000, 0.8) +      # bottom-right sprig
-        blooming(60, 60, 0.6) +          # top-left corner sprig
-        blooming(1370, 470, 0.55) +      # right-edge mid sprig
+        sprig(1430, 210, -150, 1.35, 6) +    # upper right
+        sprig(180, 1080, -28, 1.2, 6) +      # lower left
+        sprig(1520, 620, 168, 0.95, 5) +     # right edge
         left_vine + right_vine
     )
-    main_svg = wrap(body)
+    svg = wrap(body)
     rim_svg = wrap(rim())
-    for path, svg in (("assets/img/bg-porcelain.svg", main_svg),
-                      ("assets/img/bg-porcelain-rim.svg", rim_svg)):
+    for path, content in (("assets/img/bg-porcelain.svg", svg),
+                          ("assets/img/bg-porcelain-rim.svg", rim_svg)):
         with open(path, "w", encoding="utf-8") as f:
-            f.write(svg)
-        print(f"{path}: {len(svg)} bytes = {len(svg) / 1024:.1f} KB")
+            f.write(content)
+        print(f"{path}: {len(content)} bytes = {len(content) / 1024:.1f} KB")
 
 
 if __name__ == "__main__":
