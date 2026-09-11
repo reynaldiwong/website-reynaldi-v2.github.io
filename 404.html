@@ -13,13 +13,18 @@
   <link rel="stylesheet" href="/assets/css/base.css" />
   <link rel="stylesheet" href="/assets/css/home.css" />
   <style>
-    /* home.css gives the home page a fixed grain overlay via body::after. That is
-       the only decorative layer that reaches this page — the .accent porcelain
-       inks and the rim are markup-driven and this page has no such markup — so
-       switching the grain off here is all it takes to keep the 404 a clean sheet. */
+    /* home.css gives the home page a fixed grain overlay via body::after. That stays off
+       here: the leaves accent below is the decoration on this page, and a single centred
+       card carrying both reads as noise. */
     body::after { display: none; }
 
     body { display: grid; place-items: center; min-height: 100vh; text-align: center; padding: 2rem; }
+
+    /* The accent layers are position: fixed, so they paint above static content whichever
+       order the DOM is in. The card is lifted onto its own layer the same way home.css
+       lifts `main > section > .container`, so the motif passes behind the text rather
+       than over it. */
+    body > div:not(.accent) { position: relative; z-index: 1; }
 
     /* same titling face as the section numerals, so the 404 reads as part of the set */
     .code {
@@ -56,6 +61,7 @@
   </style>
 </head>
 <body>
+  <div class="accent" aria-hidden="true"><div class="accent__ink"></div><div class="accent__light"></div><div class="accent__rim accent__rim--ink"></div><div class="accent__rim accent__rim--light"></div></div>
   <div>
     <div class="code">404</div>
     <div class="shell">
