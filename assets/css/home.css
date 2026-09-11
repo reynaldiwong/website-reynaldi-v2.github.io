@@ -328,10 +328,16 @@ main > section > .container,
 
 .hero__portrait {
   position: relative;
-  /* Where the portrait starts its travel from, as a translateX. -270px is the desktop
-     fallback; hero.js measures the real distance so it lands on the viewport centre at any
-     width, and the <=900px rule zeroes it for the stacked layout. */
-  --portrait-from: -270px;
+  /* The portrait is the LEFT column (order, not DOM order - the text stays first in the
+     markup so the h1 is still read before the decorative image). */
+  order: -1;
+  /* Where the portrait starts its travel from, as a translateX. Positive, because it now sits
+     on the left of the grid and starts at the viewport CENTRE, i.e. to the right of where it
+     lands. 270px is the desktop fallback; hero.js measures the real distance so it lands on
+     the viewport centre at any width, and the <=900px rule zeroes it for the stacked layout.
+     The JS formula needs no sign flip: it computes (centre - element centre), which is
+     negative on the right side and positive here. */
+  --portrait-from: 270px;
 }
 @media (max-width: 900px) {
   .hero__portrait { --portrait-from: 0px; }
@@ -350,6 +356,19 @@ main > section > .container,
 }
 
 .hero__text {
+  /* Sits on the RIGHT column and overlaps the portrait's top-right:
+     - top: -2.5rem is the raise. A negative margin-top cannot do this job: grid and flex
+       align the MARGIN box, so margin-top: -2.5rem on a centred item pushes the text DOWN by
+       half the margin, and with align-self it would sit at the row top and again move down.
+     - margin-left clears the column gap and then eats 1.5rem into the portrait's column, so
+       the overlap stays exactly 1.5rem at any viewport width instead of drifting with the
+       clamp()'d gap. Zeroed on the stacked layout below.
+     - z-index: 1 keeps the text - and the typing name - above the portrait as it travels. */
+  align-self: start;
+  position: relative;
+  top: -2.5rem;
+  margin-left: calc(-1 * (clamp(1.5rem, 4vw, 3rem) + 1.5rem));
+  z-index: 1;
   /* The typewriter's intermediate states are unbreakable single words ("Reynaldi" before the
      space arrives), so without this the grid item's automatic minimum size grows the track
      and the hero grid re-centres itself mid-animation. Measured: the h1's box went
@@ -374,7 +393,7 @@ main > section > .container,
 @keyframes heroRoleIn    { from { opacity: 0; transform: translateX(28px); } }
 @keyframes heroNudgeIn   { from { opacity: 0; transform: translateY(-12px); } 50% { transform: translateY(2px); } }
 @keyframes heroPortraitIn {
-  from { transform: translateX(var(--portrait-from, -25cqw)) scale(0.9); }
+  from { transform: translateX(var(--portrait-from, 25cqw)) scale(0.9); }
   to   { transform: translateX(0) scale(1); }
 }
 
@@ -844,7 +863,9 @@ main b {
   .cert-card {
     grid-template-columns: 1fr;
   }
-  .hero__portrait { order: -1; max-width: 420px; }
+  .hero__portrait { max-width: 420px; }
+  /* Stacked: no overlap to fight with, so the text sits directly under the portrait. */
+  .hero__text { align-self: auto; top: 0; margin-left: 0; }
   .cert-card__badge { width: 100%; }
   .cert-card__badge img { width: 100%; height: auto; aspect-ratio: 336 / 176; }
 }
