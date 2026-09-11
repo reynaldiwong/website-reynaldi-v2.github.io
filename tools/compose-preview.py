@@ -1,6 +1,7 @@
 """Compose the deliverable previews for the room: portrait before/after, and a
 single contact sheet of the four verified changes."""
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 S = "_shots"
 INK = (31, 78, 140)
@@ -45,7 +46,7 @@ def portrait_pair():
     d.text((side + a.width + gap, 30), "AFTER  ·  + cobalt duotone under the lines", font=f, fill=INK)
     canvas.paste(box(a), (side, top))
     canvas.paste(box(b), (side + a.width + gap, top))
-    canvas.save("A-portrait.png", optimize=True)
+    canvas.save(os.path.join(S, "A-portrait.png"), optimize=True)
     print("A-portrait.png", canvas.size)
 
 
@@ -72,7 +73,7 @@ def change_sheet():
     for im, cap in tiles:
         canvas.paste(im, (pad, y)); y += im.height + 8
         d.text((pad, y), cap, font=font(24, bold=False), fill=SOFT); y += 30 + gap
-    canvas.save("B-changes.png", optimize=True)
+    canvas.save(os.path.join(S, "B-changes.png"), optimize=True)
     print("B-changes.png", canvas.size)
 
 
