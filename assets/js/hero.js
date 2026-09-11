@@ -60,8 +60,8 @@
   name.style.minWidth = 'min(' + Math.ceil(name.offsetWidth) + 'px, 100%)';
   name.textContent = '';
 
-  var START = 500;    // types while the portrait is still frozen centre (was 2300, after it landed)
-  var STEP = 90;      // per character
+  var START = 800;    // types while the portrait is still frozen centre (was 500, then 2300)
+  var STEP = 90;      // per character: 13 chars -> the name lands ~1.17s after START
   var i = 0;
   setTimeout(function tick() {
     name.textContent = FULL.slice(0, ++i);
