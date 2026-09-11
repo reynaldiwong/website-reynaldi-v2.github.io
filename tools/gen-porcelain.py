@@ -2,26 +2,36 @@
 
 One-off generator — not shipped as runtime JS. Cobalt ink only (#1f4e8c),
 no new colours. Ornament sits at the rim; the centre column stays clear.
+Stroke widths vary 0.9-1.6px so the peonies read hand-painted, not stamped.
 
 Run from repo root:  python tools/gen-porcelain.py
 Outputs assets/img/bg-porcelain.svg (blooms + vine)
         assets/img/bg-porcelain-rim.svg (rim band, wide viewports)
 """
 import math
+import random
 
 W, H = 1600, 1200
 COBALT = "#1f4e8c"
+SEED = 11
+rng = random.Random(SEED)
 
 
-def ell(cx, cy, rx, ry, rot):
+def sw():
+    """A hand-painted stroke width, 0.9-1.6px."""
+    return rng.uniform(0.9, 1.6)
+
+
+def ell(cx, cy, rx, ry, rot, width):
     return (f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" '
-            f'transform="rotate({rot:.1f} {cx:.1f} {cy:.1f})"/>')
+            f'transform="rotate({rot:.1f} {cx:.1f} {cy:.1f})" '
+            f'stroke-width="{width:.2f}"/>')
 
 
 def blooming(cx, cy, s, fill_op=0.05, stroke_op=0.14):
     """Peony bloom: overlapping ellipse petals around a centre."""
     g = [f'<g fill="{COBALT}" fill-opacity="{fill_op}" stroke="{COBALT}" '
-         f'stroke-opacity="{stroke_op}" stroke-width="1.2">']
+         f'stroke-opacity="{stroke_op}">']
     rings = [((6, 98, 52, 98), 0), ((7, 62, 36, 62), 22), ((5, 32, 22, 32), 10)]
     for (n, r, rx, ry), off in rings:
         for i in range(n):
@@ -29,8 +39,8 @@ def blooming(cx, cy, s, fill_op=0.05, stroke_op=0.14):
             rad = math.radians(a)
             px = cx + math.cos(rad) * r * s
             py = cy + math.sin(rad) * r * s
-            g.append(ell(px, py, rx * s, ry * s, a))
-    g.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{15 * s:.1f}"/>')
+            g.append(ell(px, py, rx * s, ry * s, a, sw()))
+    g.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{15 * s:.1f}" stroke-width="{sw():.2f}"/>')
     g.append("</g>")
     return "".join(g)
 
@@ -50,7 +60,7 @@ def vine(d, leaves, stroke_op=0.12):
     g = [f'<g fill="none" stroke="{COBALT}" stroke-opacity="{stroke_op}" stroke-width="1.2">',
          f'<path d="{d}"/>']
     for (bx, by, ang) in leaves:
-        g.append(f'<path d="{leaf(bx, by, ang, 74, 22)}" '
+        g.append(f'<path d="{leaf(bx, by, ang, 74, 22)}" stroke-width="{sw():.2f}" '
                  f'fill="{COBALT}" fill-opacity="0.04"/>')
     g.append("</g>")
     return "".join(g)
