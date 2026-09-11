@@ -41,6 +41,23 @@
   font-display: swap;
   src: url('../fonts/castoro-titling-400.woff2') format('woff2');
 }
+/* Inter — body text only. Recovered from git history (a1ec225^) where it was the
+   body face before the Cormorant switch. No size-adjust: unlike Cormorant, Inter's
+   metrics are close to the system sans fallback, so the swap is CLS-neutral. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/inter-600.woff2') format('woff2');
+}
 
 /* ---- Reset ---- */
 *,

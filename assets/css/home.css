@@ -387,6 +387,7 @@ main > section > .container,
    line box so it reads as a highlight rather than a pill */
 main strong,
 main b {
+  font-family: var(--font-display);   /* highlights stay serif while the body goes sans */
   background: var(--cobalt);
   color: #fff;
   padding: 0.12em 0.2em;
@@ -454,6 +455,7 @@ main b {
 }
 .terminal .prompt { color: var(--on-cobalt-soft); }
 .terminal .out    { color: var(--on-cobalt-soft); }
+.terminal .ok     { color: var(--on-cobalt); }   /* the closing 'connected' line */
 .terminal .cursor {
   display: inline-block;
   width: 0.58em;
