@@ -331,11 +331,12 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
-  /* the dot-matrix plate carries its own near-black field (#16181d — the
-     reference component's own background), so there is no duotone underlay and
-     no second pulse layer any more: the asset is the whole portrait. The mask
-     dissolves the plate's edge into the porcelain so it reads as a plate
-     sitting in the page rather than a framed image. */
+  /* the dot-matrix plate carries its own cobalt field, so there is no duotone
+     underlay and no second pulse layer any more: the asset is the whole
+     portrait. The mask dissolves the plate's edge into the porcelain so it
+     reads as a plate sitting in the page rather than a framed image. On a
+     rectangular box the gradient is elliptical, so the fade is proportional to
+     the plate rather than circular. */
   -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
   mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
 }
@@ -343,7 +344,7 @@ main > section > .container,
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1 / 1;          /* the crop is square now */
+  aspect-ratio: 3 / 4;          /* the source's own ratio — the cover-fit crops nothing */
   object-fit: cover;
   animation: inkBreathe 6s ease-in-out infinite;
 }
