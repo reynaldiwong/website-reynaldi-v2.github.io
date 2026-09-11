@@ -25,7 +25,7 @@ Use --no-mask to see the unmasked dots for comparison.
 
 Run from repo root:
   python tools/gen-dots.py --out assets/img --name me-dots.svg --size 528x528 \
-         --fill "#163a6b" --dot "#f4f7fb" --gap 8
+         --fill "#f4f7fb" --dot "#163a6b" --gap 8
 """
 import argparse
 import os
@@ -34,8 +34,8 @@ import numpy as np
 from PIL import Image
 
 SRC = "assets/img/me.webp"   # the cutout: RGB for brightness, ALPHA for the mask
-FILL = "#163a6b"      # cobalt-deep plate (the reference's own is #16181d)
-DOT = "#f4f7fb"       # pale dots
+FILL = "#f4f7fb"      # pale plate  (swapped with DOT at the user's request)
+DOT = "#163a6b"       # cobalt dots (swapped with FILL)
 GRID = 6              # gap
 BASE_R = 2.0          # baseRadius
 WAVE_K = 0.02         # x*0.02 + y*0.02

@@ -17,7 +17,7 @@
 
   const GAP = 8, BASE_R = 2, CULL = 0.1, K = 0.02, STEP = 0.03, TAU = Math.PI * 2;
   const ALPHA_MIN = 128;                 // in step with tools/cutout.py and gen-dots.py
-  const FILL = '#163a6b', DOT = '#f4f7fb', SRC = 'assets/img/me.webp';
+  const FILL = '#f4f7fb', DOT = '#163a6b', SRC = 'assets/img/me.webp';   // swapped: pale field, cobalt dots
   const w = img.getAttribute('width') | 0 || 528;
   const h = img.getAttribute('height') | 0 || 528;
 
