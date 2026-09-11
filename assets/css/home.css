@@ -505,6 +505,7 @@ main b {
   padding: 0 0.2em 0.1em;
   line-height: 1.55;
   font-style: normal;
+  font-size: 1.35em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
