@@ -331,26 +331,28 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
-  /* White dots on the cobalt plate. The corner fade is a MASK, not a border-radius:
-     border-radius fades nothing, and the earlier attempt at a radial mask used
-     stops that never fired (see the numbers below), which is why the plate read as
-     rounded instead of soft.
+  /* White dots on the cobalt plate, with ALL FOUR edges dissolving into the porcelain
+     so the plate reads as a soft-edged object rather than a hard rectangle. The
+     corners go first, because the horizontal and vertical fades multiply there.
 
-     How the geometry works: `130% 130% at center` makes an ellipse with rx = 1.3w
-     and ry = 1.3h, so the normalised gradient position r = hypot(dx/rx, dy/ry) is
-     aspect-independent: an EDGE midpoint lands at 0.5/1.3 = 38.5%, and a CORNER at
-     hypot(0.385, 0.385) = 54.4%. So the fade band has to sit between 38.5% and
-     54.4% to bite the corners and leave the straight edges alone. 42% -> 54% does
-     exactly that: edges solid at 38.5%, corners fully cleared at 54.4%. */
-  -webkit-mask-image: radial-gradient(130% 130% at center, #000 42%, transparent 54%);
-  mask-image: radial-gradient(130% 130% at center, #000 42%, transparent 54%);
+     Two gradients intersected rather than one: a single radial gradient cannot fade
+     the four sides evenly on a square plate (a corner sits at hypot(0.385,0.385) =
+     54.4% while the edge midpoints sit at 38.5%, so any band between them eats the
+     sides too). `mask-composite: intersect` multiplies them, which is exactly
+     "fade every edge". 12% is the dial: raise it for a smaller solid core. */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
+                      linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 .hero__portrait-frame img,
 .hero__portrait-frame canvas {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 4;          /* the source's own ratio — the cover-fit crops nothing */
+  aspect-ratio: 1 / 1;          /* the source's own ratio — the cover-fit crops nothing */
   object-fit: cover;
   animation: inkBreathe 6s ease-in-out infinite;
 }
@@ -478,33 +480,6 @@ main b {
 }
 @media (prefers-reduced-motion: reduce) {
   .terminal .cursor { animation: none; opacity: 0.85; }
-}
-
-/* ---------------- Boot splash ----------------
-   Hidden unless the inline <head> gate put `html.boot` on the root, so with JS off
-   or reduced-motion requested this block is inert and the site renders normally. */
-.boot { display: none; }
-html.boot { overflow: hidden; }        /* nothing scrolls behind the splash */
-html.boot .boot {
-  display: grid;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  place-items: center;
-  padding: 1.5rem;
-  background: var(--bg);
-  transition: opacity 0.4s ease;
-}
-html.boot .boot--out { opacity: 0; pointer-events: none; }
-.boot .terminal { margin-top: 0; width: min(34rem, 100%); }
-.boot__skip {
-  position: absolute;
-  inset: auto 0 clamp(1.25rem, 5vh, 2.75rem);
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--muted);
 }
 
 /* ---------------- Experience (cobalt field) ---------------- */
@@ -693,6 +668,10 @@ html.boot .boot--out { opacity: 0; pointer-events: none; }
 
 /* ---------------- Off-duty (cobalt-deep) ---------------- */
 .off-duty { padding-block: clamp(3rem, 8vw, 6rem); }
+/* The gimmick card sits between the section subtitle and the media grid, so it needs
+   its own bottom gap — `.off-duty__grid` carries no top margin by design. */
+.off-duty__terminal { margin-bottom: clamp(1.5rem, 4vw, 2.5rem); }
+
 .off-duty__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

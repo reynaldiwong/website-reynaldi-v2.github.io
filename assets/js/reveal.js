@@ -11,7 +11,6 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var start = function () {
   var observer = new IntersectionObserver(function (entries, obs) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
@@ -38,15 +37,5 @@
       v.pause();
       v.removeAttribute('autoplay');
     });
-  }
-  };
-
-  /* While the boot splash covers the page, observing is pointless: everything in the
-     viewport would reveal behind the overlay and the hero would have already played
-     by the time it lifts. Wait for the splash to hand over, then start. */
-  if (document.documentElement.classList.contains('boot')) {
-    window.addEventListener('boot:done', start, { once: true });
-  } else {
-    start();
   }
 })();
