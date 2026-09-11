@@ -2,18 +2,28 @@
    home.css — Page composition & components (A+C editorial cobalt)
    ============================================================ */
 
-/* ---------------- Faceted cobalt mesh background ---------------- */
-.mesh {
+/* ---------------- Underglaze floral porcelain background ---------------- */
+.porcelain {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url('../img/bg-mesh.svg');
+  pointer-events: none;
+  background-image: url('../img/bg-porcelain.svg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  opacity: var(--mesh-opacity);
-  pointer-events: none;
   transform: translateZ(0); /* GPU layer — no per-scroll repaint */
+}
+/* porcelain rim — thin double rule + petal band, wide viewports only */
+.porcelain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../img/bg-porcelain-rim.svg') center / cover no-repeat;
+  display: none;
+}
+@media (min-width: 1000px) {
+  .porcelain::after { display: block; }
 }
 
 /* ---------------- Grain overlay ---------------- */
@@ -178,7 +188,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   line-height: 0.8;
   letter-spacing: var(--track-display);
   color: var(--cobalt);
-  opacity: 0.08;
+  opacity: 0.28;
   z-index: 0;
   pointer-events: none;
   user-select: none;
@@ -197,7 +207,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
 .field { background: var(--field); }
 .field--alt { background: var(--field-2); }
 .field .section-head .num,
-.field--alt .section-head .num { color: var(--on-cobalt); }
+.field--alt .section-head .num { color: var(--on-cobalt); opacity: 0.35; }
 .field .section-head h2,
 .field--alt .section-head h2 { color: var(--on-cobalt); }
 
@@ -239,8 +249,8 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
 }
 .hero__grid {
   display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
-  gap: clamp(2rem, 6vw, 5rem);
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
   align-items: center;
 }
 .hero__kicker {
@@ -529,16 +539,6 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
 .stack {
   position: relative;
   padding-block: clamp(3rem, 8vw, 6rem);
-}
-.stack::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: radial-gradient(circle, var(--halftone) 1px, transparent 1px);
-  background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
 }
 .stack .container { position: relative; z-index: 1; }
 .stack__sub { font-family: var(--font-ui); color: var(--muted); margin-top: 0.4rem; margin-bottom: 2.5rem; }

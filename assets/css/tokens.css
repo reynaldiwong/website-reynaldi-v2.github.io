@@ -31,8 +31,6 @@
 
   /* ---- Texture ---- */
   --grain:     0.03;                       /* SVG grain opacity */
-  --halftone:  rgba(31, 78, 140, 0.12);    /* dot-field tint */
-  --mesh-opacity: 0.09;                    /* faceted mesh opacity (≤12% AA ceiling) */
 
   /* ---- Lines ---- */
   --line:          #e0e6ed;
@@ -58,7 +56,7 @@
   --font-mono:    ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', 'Fira Mono', Menlo, monospace;
 
   /* ---- Display type scale ---- */
-  --fs-hero:    clamp(3rem, 11vw, 10rem);
+  --fs-hero:    clamp(3rem, 9vw, 9rem);
   --fs-section: clamp(2rem, 6vw, 4.5rem);
   --fs-numeral: clamp(4rem, 12vw, 9rem);
   --track-display: -0.02em;   /* display only — never body */
