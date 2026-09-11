@@ -1,17 +1,20 @@
-"""Generate the cobalt stipple duotone portrait (two density variants).
+"""Generate the cobalt portrait assets (stipple dots + contour-traced lines).
 
 One-off generator, Pillow + numpy + scipy — NOT shipped as runtime JS.
-Transparent background, dots in cobalt #1f4e8c, so it drops into the
-porcelain frame instead of baking a background.
+Transparent background, cobalt #1f4e8c only, so it drops into the porcelain
+page instead of baking a background.
 
 Run from repo root:  python tools/gen-stipple.py
-Outputs _lowpoly/me-stipple-6500.svg and _lowpoly/me-stipple-4000.svg
+Outputs assets/img/me-stipple.svg   (frozen option 2)
+        assets/img/me-lines.svg     (hero — contour-traced)
+        _lowpoly/*                  reference densities
 """
 import math
 import os
 
 import numpy as np
 from PIL import Image
+from scipy.ndimage import gaussian_filter
 from scipy.spatial import cKDTree, Delaunay
 
 SRC = "assets/img/me.jpg"
@@ -37,10 +40,23 @@ def tone_curve(lum):
     return np.clip((tone - lo) / (hi - lo), 0.0, 1.0) ** gamma
 
 
+def svg_open():
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
+            f'width="{W}" height="{H}">')
+
+
+def write(path, svg):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(svg)
+
+
 def build(step, name, out=OUT, seed=SEED):
+    """Stipple: tone-weighted dots on a jittered grid, grouped into radius
+    buckets so each path carries one stroke-width (keeps the file small)."""
     tone = tone_curve(load())
     rng = np.random.default_rng(seed)
-    jit = 0.4 * step                                # +-40% of the cell
+    jit = 0.4 * step
     pts = []
     for y in range(0, H, step):
         for x in range(0, W, step):
@@ -61,8 +77,7 @@ def build(step, name, out=OUT, seed=SEED):
         bins[bi].append((int(round(x)), int(round(y))))
         radii.append(r)
 
-    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
-             f'width="{W}" height="{H}">']
+    parts = [svg_open()]
     for i, bucket in enumerate(bins):
         if not bucket:
             continue
@@ -77,103 +92,180 @@ def build(step, name, out=OUT, seed=SEED):
                      f'stroke-width="{2 * r:.2f}" stroke-linecap="round" fill="none"/>')
     parts.append("</svg>")
     svg = "".join(parts)
-
-    os.makedirs(out, exist_ok=True)
-    path = f"{out}/{name}"
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(svg)
+    write(f"{out}/{name}", svg)
 
     arr = np.array([(x, y) for b in bins for (x, y) in b], dtype=float)
     nn = cKDTree(arr).query(arr, k=2)[0][:, 1]
     radii = np.array(radii)
-    print(f"{path}: {len(svg)} B = {len(svg) / 1024:.1f} KB, {len(pts)} dots")
-    print(f"   radius: min {radii.min():.2f}  max {radii.max():.2f}  (cap {MAX_R})")
-    print(f"   buckets({BUCKETS}): {[len(b) for b in bins]}")
-    print(f"   NN spread: min {nn.min():.2f}  mean {nn.mean():.2f}  "
-          f"max {nn.max():.2f}  std {nn.std():.2f}")
+    print(f"{out}/{name}: {len(svg) / 1024:.1f} KB, {len(pts)} dots  "
+          f"(radius {radii.min():.2f}-{radii.max():.2f}, NN {nn.mean():.2f})")
 
 
 def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
-    """Delaunay wireframe: tone-weighted points, edges drawn as thin cobalt
-    lines with opacity modulated by local tone (dense/bright in shadow,
-    sparse/faint over light skin). Cull long edges; dot each vertex."""
-    tone = tone_curve(load())
+    """Contour-traced wireframe portrait.
+
+    The lines follow the FACE, not a free triangulation: Sobel gradient on a
+    blurred grayscale gives the feature ridges (jaw, hair, eyes, nose), points
+    are sampled along those ridges, and each point is chained to its nearest
+    neighbour in the local edge-tangent direction — so the strokes run along
+    the contours instead of striking across empty space. A sparse interior fill
+    anchors the dots. Edge opacity is modulated by local tone: dense/bright in
+    shadow, faint over light skin."""
+    lum = load()
+    smooth = gaussian_filter(lum, 1.2)
+    gy, gx = np.gradient(smooth * 255.0)
+    mag = gaussian_filter(np.hypot(gx, gy), 0.6)
+    tone = tone_curve(lum)
+    thr = float(np.percentile(mag, 85.0))
     rng = np.random.default_rng(seed)
-    jit = 0.4 * step
-    pts, tones = [], []
+
+    pts, tones, on_edge = [], [], []
     for y in range(0, H, step):
         for x in range(0, W, step):
-            cy = min(H - 1, y + step // 2)
-            cx = min(W - 1, x + step // 2)
-            t = tone[cy, cx]
-            if 2.2 * t ** 0.7 < MIN_R:
+            px = x + step // 2 + int(round(rng.uniform(-0.35, 0.35) * step))
+            py = y + step // 2 + int(round(rng.uniform(-0.35, 0.35) * step))
+            if not (1 <= px < W - 1 and 1 <= py < H - 1):
                 continue
-            pts.append((x + step / 2 + rng.uniform(-jit, jit),
-                        y + step / 2 + rng.uniform(-jit, jit)))
-            tones.append(t)
-    pts = np.array(pts)
+            if mag[py, px] >= thr:
+                pts.append((px, py)); tones.append(float(tone[py, px])); on_edge.append(True)
+            elif tone[py, px] > 0.18 and rng.random() < 0.05:
+                pts.append((px, py)); tones.append(float(tone[py, px])); on_edge.append(False)
+
+    pts = np.array(pts, dtype=float)
     tones = np.array(tones)
-    tri = Delaunay(pts)
+    on_edge = np.array(on_edge)
+    tree = cKDTree(pts)
 
+    # local edge tangent = perpendicular to the luminance gradient
+    tang = np.zeros_like(pts)
+    for i, (px, py) in enumerate(pts):
+        a, b = gx[int(py), int(px)], gy[int(py), int(px)]
+        n = math.hypot(a, b) or 1.0
+        tang[i] = (-b / n, a / n)
+
+    dist, idx = tree.query(pts, k=10)
     edges = set()
-    for s in tri.simplices:
-        for i in range(3):
-            a, b = int(s[i]), int(s[(i + 1) % 3])
-            edges.add((a, b) if a < b else (b, a))
+    for i in range(len(pts)):
+        for sign in (1.0, -1.0):
+            best, bd = None, max_edge
+            for d, j in zip(dist[i][1:], idx[i][1:]):
+                if d >= bd:
+                    continue
+                v = pts[int(j)] - pts[i]
+                nv = float(np.linalg.norm(v)) or 1.0
+                if float(np.dot(v / nv, tang[i])) * sign > 0.72:
+                    best, bd = int(j), float(d)
+            if best is not None:
+                edges.add((i, best) if i < best else (best, i))
 
-    buckets = [[] for _ in range(levels)]
-    kept = 0
+    # keep only degree-<=2 vertices: short edges first, so what survives is a set
+    # of polylines running along the contours rather than a junction spider
+    pruned, deg = set(), {}
+    for (a, b) in sorted(edges, key=lambda e: math.hypot(*(pts[e[0]] - pts[e[1]]))):
+        if deg.get(a, 0) < 2 and deg.get(b, 0) < 2:
+            pruned.add((a, b))
+            deg[a] = deg.get(a, 0) + 1
+            deg[b] = deg.get(b, 0) + 1
+    edges = pruned
+
+    # --- pack: walk the degree-<=2 graph into chains, so a run of along-contour
+    # segments shares one relative 'l' command instead of restarting every
+    # segment with a relative move (about 20% off the file, which buys density)
+    adj = {}
     for (a, b) in edges:
-        x1, y1 = pts[a]
-        x2, y2 = pts[b]
-        if math.hypot(x2 - x1, y2 - y1) > max_edge:
-            continue
-        op = 0.12 + 0.43 * (tones[a] + tones[b]) / 2
-        li = min(levels - 1, int((op - 0.12) / 0.43 * levels))
-        buckets[li].append((x1, y1, x2, y2))
-        kept += 1
+        adj.setdefault(a, []).append(b)
+        adj.setdefault(b, []).append(a)
 
-    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
-             f'width="{W}" height="{H}">']
-    for i, b in enumerate(buckets):
-        if not b:
+    def bucket_of(t):
+        return min(levels - 1, int(t * levels))
+
+    seen = set()
+    runs = [[] for _ in range(levels)]
+
+    def walk(u, v):
+        chain = [u, v]
+        while len(adj[chain[-1]]) <= 2:
+            nxt = [n for n in adj[chain[-1]]
+                   if n != chain[-2] and (min(chain[-1], n), max(chain[-1], n)) not in seen]
+            if not nxt:
+                break
+            n = nxt[0]
+            seen.add((min(chain[-1], n), max(chain[-1], n)))
+            chain.append(n)
+        return chain
+
+    for u in sorted(adj, key=lambda k: len(adj[k])):      # chain ends first
+        for v in adj[u]:
+            key = (min(u, v), max(u, v))
+            if key in seen:
+                continue
+            seen.add(key)
+            chain = walk(u, v)
+            i = 0
+            while i < len(chain) - 1:
+                bk = bucket_of((tones[chain[i]] + tones[chain[i + 1]]) / 2)
+                j = i + 1
+                while (j < len(chain) - 1 and
+                       bucket_of((tones[chain[j]] + tones[chain[j + 1]]) / 2) == bk):
+                    j += 1
+                runs[bk].append(chain[i:j + 1])
+                i = j
+
+    parts = [svg_open()]
+    for i, rl in enumerate(runs):
+        if not rl:
             continue
         op = 0.12 + (i + 0.5) / levels * 0.43
         d = []
         px = py = 0
-        for x1, y1, x2, y2 in sorted(b):
-            ix1, iy1 = int(round(x1)), int(round(y1))
-            ix2, iy2 = int(round(x2)), int(round(y2))
-            d.append(f"m{ix1 - px} {iy1 - py}l{ix2 - ix1} {iy2 - iy1}")
-            px, py = ix2, iy2
+        for chain in sorted(rl, key=lambda c: c[0]):
+            x0, y0 = int(round(pts[chain[0]][0])), int(round(pts[chain[0]][1]))
+            if d:
+                d.append(f"m{x0 - px} {y0 - py}")
+            else:
+                d.append(f"M{x0} {y0}")
+            px, py = x0, y0
+            for n in chain[1:]:
+                x, y = int(round(pts[n][0])), int(round(pts[n][1]))
+                d.append(f"l{x - px} {y - py}")
+                px, py = x, y
         parts.append(f'<path d="{"".join(d)}" stroke="{COBALT}" stroke-width="0.6" '
                      f'stroke-opacity="{op:.2f}" fill="none"/>')
-    # vertex dots (relative moves — keeps them compact)
-    vx, vy = int(round(pts[0][0])), int(round(pts[0][1]))
-    seg = [f"M{vx} {vy}h0"]
-    for (px, py) in pts[1:]:
-        rx, ry = int(round(px)), int(round(py))
-        seg.append(f"m{rx - vx} {ry - vy}h0")
-        vx, vy = rx, ry
-    parts.append(f'<path d="{"".join(seg)}" stroke="{COBALT}" stroke-width="1.6" '
-                 f'stroke-linecap="round" fill="none"/>')
+
+    def dotset(mask, width):
+        sub = pts[mask]
+        if not len(sub):
+            return ""
+        vx, vy = int(round(sub[0][0])), int(round(sub[0][1]))
+        seg = [f"M{vx} {vy}h0"]
+        for (px_, py_) in sub[1:]:
+            rx, ry = int(round(px_)), int(round(py_))
+            seg.append(f"m{rx - vx} {ry - vy}h0")
+            vx, vy = rx, ry
+        return (f'<path d="{"".join(seg)}" stroke="{COBALT}" stroke-width="{width}" '
+                f'stroke-linecap="round" fill="none"/>')
+
+    parts.append(dotset(on_edge, 1.6))     # contour anchors
+    parts.append(dotset(~on_edge, 1.0))    # sparse interior fill
     parts.append("</svg>")
     svg = "".join(parts)
+    write(f"{out}/{name}", svg)
 
-    os.makedirs(out, exist_ok=True)
-    path = f"{out}/{name}"
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(svg)
-    print(f"{path}: {len(svg)} B = {len(svg) / 1024:.1f} KB, "
-          f"{len(pts)} nodes, {kept} edges kept of {len(edges)}")
+    deg = np.zeros(len(pts), dtype=int)
+    for a, b in edges:
+        deg[a] += 1
+        deg[b] += 1
+    print(f"{out}/{name}: {len(svg) / 1024:.1f} KB, {int(on_edge.sum())} contour pts "
+          f"+ {int((~on_edge).sum())} interior, {len(edges)} edges, "
+          f"chain degree mean {deg.mean():.2f}")
 
 
 def main():
-    build(9, "me-stipple.svg", out="assets/img")    # hero: ~4.5k dots (frozen)
-    build(7, "me-stipple-6500.svg")                 # reference densities
+    build(9, "me-stipple.svg", out="assets/img")     # hero fallback: ~4.5k dots (frozen)
+    build(7, "me-stipple-6500.svg")                  # reference densities
     build(11, "me-stipple-3000.svg")
-    build_lines(15, "me-lines.svg", out="assets/img")   # hero line variant
-    build_lines(12, "me-lines-2500.svg")
+    build_lines(5, "me-lines.svg", out="assets/img")  # hero: contour-traced
+    build_lines(7, "me-lines-2500.svg")
 
 
 if __name__ == "__main__":
