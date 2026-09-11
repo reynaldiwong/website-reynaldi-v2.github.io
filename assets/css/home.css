@@ -348,7 +348,7 @@ main > section > .container,
      scale - no rotation, no overshoot, and opacity stays 1 the whole time (this is the LCP
      element, so it is never hidden, only moved). */
   animation: heroPortraitIn 1.4s var(--ease-soft) both;
-  animation-delay: 2s;
+  animation-delay: 0.5s;
   /* Frameless. The mat, border, radius, shadow and cobalt accent are gone; the only thing
      giving the portrait shape is the <img> rules below. Its highlight stop is the page's
      own --bg, so the bright end of the duotone dissolves into the porcelain rather than
@@ -366,8 +366,8 @@ main > section > .container,
      - z-index: 1 keeps the text - and the typing name - above the portrait as it travels. */
   align-self: start;
   position: relative;
-  top: -2.5rem;
-  margin-left: calc(-1 * (clamp(1.5rem, 4vw, 3rem) + 1.5rem));
+  top: 1.5rem;
+  margin-left: calc(-1.8 * (clamp(1.5rem, 4vw, 3rem) + 1.5rem));
   z-index: 1;
   /* The typewriter's intermediate states are unbreakable single words ("Reynaldi" before the
      space arrives), so without this the grid item's automatic minimum size grows the track
@@ -382,8 +382,8 @@ main > section > .container,
    its own clock. The name is a JS typewriter (hero.js) rather than a CSS animation, so it
    has no rule here. Transform/opacity only, all `both` so nothing flashes before its turn,
    and none of these elements carry [data-reveal] - this replaces the scroll-reveal. */
-.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 2s; }
-.hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 3.2s; }
+.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 0.5s; }
+.hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 1s; }
 .hero__scroll { animation: heroNudgeIn 0.6s var(--ease-soft) both;  animation-delay: 3.8s; }
 
 /* Typewriter: the caret was removed by request - the name simply types itself out and
