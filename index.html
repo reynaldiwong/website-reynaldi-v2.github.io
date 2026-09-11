@@ -21,6 +21,9 @@
   <!-- Preload above-the-fold fonts -->
   <link rel="preload" href="assets/fonts/cormorant-garamond-600.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/cormorant-garamond-400.woff2" as="font" type="font/woff2" crossorigin />
+  <!-- Inter is the BODY face now, so it is above the fold and worth a preload.
+       Castoro is not: the numerals it sets sit below the fold. -->
+  <link rel="preload" href="assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/img/me-dots.svg" as="image" type="image/svg+xml" />
 
   <script>document.documentElement.classList.add('js');</script>
