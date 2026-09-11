@@ -101,7 +101,8 @@ def build(step, name, out=OUT, seed=SEED):
           f"(radius {radii.min():.2f}-{radii.max():.2f}, NN {nn.mean():.2f})")
 
 
-def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
+def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7,
+                part="both", dot_opacity=None):
     """Contour-traced wireframe portrait.
 
     The lines follow the FACE, not a free triangulation: Sobel gradient on a
@@ -110,7 +111,14 @@ def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
     neighbour in the local edge-tangent direction — so the strokes run along
     the contours instead of striking across empty space. A sparse interior fill
     anchors the dots. Edge opacity is modulated by local tone: dense/bright in
-    shadow, faint over light skin."""
+    shadow, faint over light skin.
+
+    `part` selects the payload: "both" (strokes + vertex dots), "lines"
+    (strokes only) or "dots" (vertices only). The dot layer is emitted
+    separately so CSS can pulse it independently of the strokes — a duplicate
+    baked into the same file would land on already-opaque dots and be
+    invisible, so the base copy is drawn light and the pulse layer supplies the
+    swing."""
     lum = load()
     smooth = gaussian_filter(lum, 1.2)
     gy, gx = np.gradient(smooth * 255.0)
@@ -212,7 +220,7 @@ def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
                 i = j
 
     parts = [svg_open()]
-    for i, rl in enumerate(runs):
+    for i, rl in enumerate([] if part == "dots" else runs):
         if not rl:
             continue
         op = 0.12 + (i + 0.5) / levels * 0.43
@@ -232,7 +240,7 @@ def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
         parts.append(f'<path d="{"".join(d)}" stroke="{COBALT}" stroke-width="0.6" '
                      f'stroke-opacity="{op:.2f}" fill="none"/>')
 
-    def dotset(mask, width):
+    def dotset(mask, width, opacity=None):
         sub = pts[mask]
         if not len(sub):
             return ""
@@ -242,11 +250,13 @@ def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
             rx, ry = int(round(px_)), int(round(py_))
             seg.append(f"m{rx - vx} {ry - vy}h0")
             vx, vy = rx, ry
+        op = f' stroke-opacity="{opacity}"' if opacity is not None else ""
         return (f'<path d="{"".join(seg)}" stroke="{COBALT}" stroke-width="{width}" '
-                f'stroke-linecap="round" fill="none"/>')
+                f'stroke-linecap="round"{op} fill="none"/>')
 
-    parts.append(dotset(on_edge, 2.6))     # contour anchors — carry the shape
-    parts.append(dotset(~on_edge, 1.7))    # sparse interior fill
+    if part != "lines":
+        parts.append(dotset(on_edge, 2.6, dot_opacity))     # contour anchors
+        parts.append(dotset(~on_edge, 1.7, dot_opacity))    # sparse interior fill
     parts.append("</svg>")
     svg = "".join(parts)
     write(f"{out}/{name}", svg)
@@ -290,7 +300,8 @@ def main():
     build(9, "me-stipple.svg", out="assets/img")     # hero fallback: ~4.5k dots (frozen)
     build(7, "me-stipple-6500.svg")                  # reference densities
     build(11, "me-stipple-3000.svg")
-    build_lines(5, "me-lines.svg", out="assets/img")  # hero: contour-traced
+    build_lines(6, "me-lines.svg", out="assets/img", dot_opacity=0.30)   # hero: strokes + light vertices
+    build_lines(6, "me-lines-dots.svg", out="assets/img", part="dots")    # pulse layer (same point set)
     build_lines(7, "me-lines-2500.svg")
     build_duotone()                                   # tone layer under the hero lines
 

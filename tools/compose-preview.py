@@ -1,7 +1,14 @@
-"""Compose the deliverable previews for the room: portrait before/after, and a
-single contact sheet of the four verified changes."""
+"""Compose the room deliverables from the raw captures.
+
+A-portrait.png — the eye-gate: previous point set / sparser base / the vertex
+pulse at its peak, then a zoomed trough-vs-peak pair so the twinkle is visible
+in a still.
+B-changes.png  — the four numerically-verified changes.
+"""
+import io
+import re
+
 from PIL import Image, ImageDraw, ImageFont
-import os
 
 S = "_shots"
 INK = (31, 78, 140)
@@ -10,72 +17,94 @@ PAPER = (250, 250, 252)
 
 
 def font(size, bold=True):
-    for name in (("seguisb.ttf", "segoeui.ttf") if bold else ("segoeui.ttf",)):
+    for n in (("seguisb.ttf", "segoeui.ttf") if bold else ("segoeui.ttf",)):
         try:
-            return ImageFont.truetype("C:/Windows/Fonts/" + name, size)
+            return ImageFont.truetype("C:/Windows/Fonts/" + n, size)
         except OSError:
             continue
     return ImageFont.load_default()
 
 
-def label(im, text, size=30, color=INK, pad=(0, 0)):
-    d = ImageDraw.Draw(im)
-    d.text(pad, text, font=font(size), fill=color)
-    return im
-
-
 def box(im, w=3, color=(214, 224, 238)):
-    d = ImageDraw.Draw(im)
-    d.rectangle([0, 0, im.width - 1, im.height - 1], outline=color, width=w)
+    ImageDraw.Draw(im).rectangle([0, 0, im.width - 1, im.height - 1], outline=color, width=w)
     return im
 
 
-# ---- 1. portrait before / after -------------------------------------------------
-def portrait_pair():
-    a = Image.open(f"{S}/lines-only.png").convert("RGB")
-    b = Image.open(f"{S}/portrait-1440.png").convert("RGB")
-    h = 880
-    a = a.resize((int(a.width * h / a.height), h), Image.LANCZOS)
-    b = b.resize((int(b.width * h / b.height), h), Image.LANCZOS)
-    top, gap, side = 96, 44, 40
-    W = side * 2 + a.width + gap + b.width
-    canvas = Image.new("RGB", (W, top + h + 46), PAPER)
+def svg_stats(path):
+    s = io.open(path, encoding="utf-8").read()
+    return len(re.findall(r"h0", s)), len(re.findall(r"l-?\d", s)), len(s) / 1024
+
+
+def portrait_sheet():
+    old_d, old_l, old_kb = svg_stats(f"{S}/old-lines.svg")
+    new_d, new_l, new_kb = svg_stats("assets/img/me-lines.svg")
+
+    panels = [
+        ("panel-before.png", "BEFORE", f"{old_d:,} dots · all opaque · static"),
+        ("panel-after.png", "AFTER", f"{new_d:,} dots · base at 0.30 · strokes longer"),
+        ("panel-twinkle.png", "ANIMATED", "vertex layer at its peak (0.70)"),
+    ]
+    ims = [Image.open(f"{S}/{n}").convert("RGB") for n, _, _ in panels]
+    h = 700
+    ims = [im.resize((int(im.width * h / im.height), h), Image.LANCZOS) for im in ims]
+    gap, side, top = 36, 40, 100
+    W = side * 2 + sum(i.width for i in ims) + gap * 2
+    row1 = top + h
+
+    # zoom row: the same face crop at the two ends of the pulse
+    zoom_h = 430
+    def crop(name):
+        im = Image.open(f"{S}/{name}").convert("RGB")
+        c = im.crop((int(im.width * 0.30), int(im.height * 0.08), int(im.width * 0.72), int(im.height * 0.58)))
+        return c.resize((int(c.width * zoom_h / c.height), zoom_h), Image.LANCZOS)
+    ztr, zpk = crop("panel-trough.png"), crop("panel-twinkle.png")
+
+    H = row1 + 96 + zoom_h + 46
+    canvas = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(canvas)
-    f = font(34)
-    d.text((side, 30), "BEFORE  ·  lines only, no tone", font=f, fill=SOFT)
-    d.text((side + a.width + gap, 30), "AFTER  ·  + cobalt duotone under the lines", font=f, fill=INK)
-    canvas.paste(box(a), (side, top))
-    canvas.paste(box(b), (side + a.width + gap, top))
-    canvas.save(os.path.join(S, "A-portrait.png"), optimize=True)
-    print("A-portrait.png", canvas.size)
+    x = side
+    for (_, tag, sub), im in zip(panels, ims):
+        d.text((x, 22), tag, font=font(34), fill=INK)
+        d.text((x, 62), sub, font=font(22, bold=False), fill=SOFT)
+        canvas.paste(box(im), (x, top))
+        x += im.width + gap
+    d.text((side, row1 + 6), f"dots {old_d:,} -> {new_d:,}   ·   line segments {old_l:,} -> {new_l:,}   ·   hero asset {old_kb:.1f} KB -> {new_kb:.1f} KB + 14.4 KB pulse layer",
+           font=font(23, bold=False), fill=SOFT)
+    d.text((side, row1 + 44), "Zoomed, same crop: pulse trough (left) vs pulse peak (right) — vertices swing ~0.34 -> ~0.78 combined opacity",
+           font=font(23, bold=False), fill=SOFT)
+    canvas.paste(box(ztr), (side, row1 + 88))
+    canvas.paste(box(zpk), (side + ztr.width + gap, row1 + 88))
+    canvas.save(f"{S}/A-portrait.png", optimize=True)
+    print("A-portrait.png", canvas.size, f"(dots {old_d}->{new_d}, segs {old_l}->{new_l})")
 
 
-# ---- 2. change sheet ------------------------------------------------------------
 def change_sheet():
     items = [
-        ("contact-1440.png", "Email me stays the only CTA · email text removed · LinkedIn / GitHub / Discord as cobalt marks, label under"),
-        ("about-1440.png", "Bold copy gets the marker highlight · body text now --ink-soft (8.9:1)"),
-        ("sectionhead-1440.png", "Numeral nudged back to -0.4em / -0.25em"),
-        ("rim-1440.png", "Left/right rim now rides the same two inks as the leaves"),
+        ("contact-row-1440.png", "Contact: one row — Email me, then LinkedIn · GitHub · Discord inline to its right"),
+        ("spotify-1440.png", "Spotify: frame adopts the embed's own geometry — 12px radius, no border, 352px"),
+        ("highlight-1440.png", "Bold highlight deepened: rgba(31,78,140,.18) from 56% down"),
+        ("numeral-1440.png", "Numeral nudged right: left -0.25em -> 0, top -0.4em held"),
     ]
-    scale_w = 1080
+    W = 1120
     tiles = []
     for name, cap in items:
         im = Image.open(f"{S}/{name}").convert("RGB")
-        im = im.resize((scale_w, max(120, int(im.height * scale_w / im.width))), Image.LANCZOS).crop((0, 0, scale_w, min(im.height, 560)))
+        im = im.resize((W, max(120, int(im.height * W / im.width))), Image.LANCZOS)
+        if im.height > 620:
+            im = im.crop((0, 0, W, 620))
         tiles.append((box(im), cap))
-    top, gap, pad = 74, 34, 40
-    H = top + sum(t.height + 30 + 34 for t, _ in tiles) + pad
-    canvas = Image.new("RGB", (scale_w + pad * 2, H), PAPER)
+    top, gap, pad = 78, 34, 40
+    H = top + sum(t.height + 60 for t, _ in tiles) + pad
+    canvas = Image.new("RGB", (W + pad * 2, H), PAPER)
     d = ImageDraw.Draw(canvas)
-    d.text((pad, 24), "Verified in-browser at 1440px", font=font(32), fill=INK)
+    d.text((pad, 26), "Verified in-browser at 1440px · 375px checked separately", font=font(32), fill=INK)
     y = top
     for im, cap in tiles:
-        canvas.paste(im, (pad, y)); y += im.height + 8
-        d.text((pad, y), cap, font=font(24, bold=False), fill=SOFT); y += 30 + gap
-    canvas.save(os.path.join(S, "B-changes.png"), optimize=True)
+        canvas.paste(im, (pad, y)); y += im.height + 10
+        d.text((pad, y), cap, font=font(24, bold=False), fill=SOFT); y += 50 + gap
+    canvas.save(f"{S}/B-changes.png", optimize=True)
     print("B-changes.png", canvas.size)
 
 
-portrait_pair()
+portrait_sheet()
 change_sheet()
