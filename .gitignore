@@ -22,3 +22,6 @@ _lowpoly/
 # Python bytecode from the tools/ scripts
 __pycache__/
 *.pyc
+
+# Segmentation venv for tools/cutout.py (rembg + onnxruntime, ~400 MB)
+.venv-seg/

@@ -331,21 +331,8 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
-  /* White dots on the cobalt plate, with ALL FOUR edges dissolving into the porcelain
-     so the plate reads as a soft-edged object rather than a hard rectangle. The
-     corners go first, because the horizontal and vertical fades multiply there.
-
-     Two gradients intersected rather than one: a single radial gradient cannot fade
-     the four sides evenly on a square plate (a corner sits at hypot(0.385,0.385) =
-     54.4% while the edge midpoints sit at 38.5%, so any band between them eats the
-     sides too). `mask-composite: intersect` multiplies them, which is exactly
-     "fade every edge". 12% is the dial: raise it for a smaller solid core. */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
-                      linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
-              linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
+  /* Hard edges. The four-side fade was removed on request — the plate is a plain
+     cobalt square and the dots delineate the subject instead. */
 }
 .hero__portrait-frame img,
 .hero__portrait-frame canvas {
@@ -442,45 +429,7 @@ main b {
 /* the real thing, site-wide, so actual text selection matches the theme */
 ::selection { background: var(--cobalt); color: #fff; }
 .field ::selection,
-.field--alt ::selection,
-.terminal ::selection { background: var(--on-cobalt); color: var(--field); }
-
-/* ---------------- Terminal card (inside About) ---------------- */
-.terminal {
-  margin-top: clamp(2rem, 5vw, 3.25rem);
-  background: var(--field);
-  border-radius: var(--r-lg);
-  padding: 1.5rem 1.75rem;
-  font-family: var(--font-mono);
-  font-size: clamp(0.78rem, 2.2vw, 0.92rem);   /* keeps the longest line inside the card at 375px */
-  line-height: 1.8;
-  color: var(--on-cobalt);
-  overflow-x: auto;      /* long lines scroll inside the card, never the page */
-}
-.terminal pre {
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  white-space: pre;
-}
-.terminal .prompt { color: var(--on-cobalt-soft); }
-.terminal .out    { color: var(--on-cobalt-soft); }
-.terminal .ok     { color: var(--on-cobalt); }   /* the closing 'connected' line */
-.terminal .cursor {
-  display: inline-block;
-  width: 0.58em;
-  height: 1.05em;
-  background: var(--on-cobalt);
-  vertical-align: -0.18em;
-  animation: blink 1.1s steps(1, end) infinite;
-}
-@keyframes blink {
-  0%, 49%   { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .terminal .cursor { animation: none; opacity: 0.85; }
-}
+.field--alt ::selection { background: var(--on-cobalt); color: var(--field); }
 
 /* ---------------- Experience (cobalt field) ---------------- */
 .experience { padding-block: clamp(3rem, 8vw, 6rem); }
@@ -668,10 +617,6 @@ main b {
 
 /* ---------------- Off-duty (cobalt-deep) ---------------- */
 .off-duty { padding-block: clamp(3rem, 8vw, 6rem); }
-/* The gimmick card sits between the section subtitle and the media grid, so it needs
-   its own bottom gap — `.off-duty__grid` carries no top margin by design. */
-.off-duty__terminal { margin-bottom: clamp(1.5rem, 4vw, 2.5rem); }
-
 .off-duty__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
