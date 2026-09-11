@@ -338,58 +338,48 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
-  /* The entrance: held at the centre of the viewport, then carried right into its column
-     while squaring up. Deliberately NO opacity keyframe - this is the LCP element, and
-     starting it invisible would push first paint out by the whole animation. It is visible
-     from the first frame and only moves. */
+  /* The lead: frozen on the viewport centre for 2s, then a clean slide right with a gentle
+     scale - no rotation, no overshoot, and opacity stays 1 the whole time (this is the LCP
+     element, so it is never hidden, only moved). */
   animation: heroPortraitIn 1.4s var(--ease-soft) both;
-  animation-delay: 0.3s;
+  animation-delay: 2s;
   /* Frameless. The mat, border, radius, shadow and cobalt accent are gone; the only thing
      giving the portrait shape is the <img> rules below. Its highlight stop is the page's
      own --bg, so the bright end of the duotone dissolves into the porcelain rather than
      sitting on a plate. */
 }
 
-/* ---------------- Hero load entrance ---------------- */
-/* The portrait travels first and the text wakes up behind it - overlapping the travel
-   rather than waiting for it to finish - and each text element starts on its own time, so
-   the group reads as asynchronous rather than a metronome. Transform/opacity only (nothing
-   outside the compositor), all `both` so nothing flashes before its turn. These elements
-   carry no [data-reveal]: this replaces the scroll-reveal for them. */
-.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 0.5s; }
-.hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 0.9s; }
-.hero__scroll { animation: heroNudgeIn 0.6s var(--ease-soft) both;  animation-delay: 1.2s; }
+.hero__text {
+  /* The typewriter's intermediate states are unbreakable single words ("Reynaldi" before the
+     space arrives), so without this the grid item's automatic minimum size grows the track
+     and the hero grid re-centres itself mid-animation. Measured: the h1's box went
+     487 -> 546 -> 582 -> 487 and the role moved 3px, i.e. CLS 0.0967. min-width: 0 keeps the
+     box at the column width and lets the growing word overflow instead of reflowing. */
+  min-width: 0;
+}
 
-/* The name rises out of its own baseline rather than fading: each word sits in a clipping
-   wrapper and its inner span travels up from below the mask. Cormorant at line-height 0.95
-   has ink taller than its line box (measured 176px of ink in a 123px box), so the wrapper
-   needs real vertical padding or it slices the ascenders and descenders off - 0.16em was
-   measured short by ~6px, hence 0.24em. The equal negative margin keeps the margin box
-   exactly the size it was, so the line box, the wrap and the hero grid are untouched. */
-.hero__word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-  padding: 0.24em 0;
-  margin: -0.24em 0;
-}
-.hero__word-in {
-  display: inline-block;
-  animation: heroNameRise 1.3s var(--ease-soft) both;
-}
-.hero__word:nth-child(1) .hero__word-in { animation-delay: 0.65s; }
-.hero__word:nth-child(2) .hero__word-in { animation-delay: 0.8s; }
+/* ---------------- Hero load entrance ---------------- */
+/* The portrait leads, frozen mid-screen for 2s, then travels; the text wakes up behind it on
+   its own clock. The name is a JS typewriter (hero.js) rather than a CSS animation, so it
+   has no rule here. Transform/opacity only, all `both` so nothing flashes before its turn,
+   and none of these elements carry [data-reveal] - this replaces the scroll-reveal. */
+.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 2s; }
+.hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 3.2s; }
+.hero__scroll { animation: heroNudgeIn 0.6s var(--ease-soft) both;  animation-delay: 3.8s; }
+
+/* Typewriter: the caret was removed by request - the name simply types itself out and
+   stops. hero.js drives it, so there is no rule here. */
 
 @keyframes heroKickerIn  { from { opacity: 0; transform: translateX(-28px); } }
 @keyframes heroRoleIn    { from { opacity: 0; transform: translateX(28px); } }
 @keyframes heroNudgeIn   { from { opacity: 0; transform: translateY(-12px); } 50% { transform: translateY(2px); } }
-@keyframes heroNameRise  { from { transform: translateY(110%); } }
 @keyframes heroPortraitIn {
-  from { transform: translateX(var(--portrait-from, -270px)) scale(0.9) rotate(-1.5deg); }
+  from { transform: translateX(var(--portrait-from, -25cqw)) scale(0.9); }
+  to   { transform: translateX(0) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__kicker, .hero__role, .hero__scroll, .hero__portrait-frame, .hero__word-in {
+  .hero__kicker, .hero__role, .hero__scroll, .hero__portrait-frame {
     animation: none;
     opacity: 1;
     transform: none;
