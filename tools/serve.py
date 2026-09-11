@@ -9,12 +9,17 @@ way they will once deployed.
     python tools/serve.py 8123        # then open http://localhost:8123/
     curl -i http://localhost:8123/nope/whatever
 
-Run it from the repo root: SimpleHTTPRequestHandler serves the current directory.
+The document root is anchored to this file, not to the working directory, so it behaves
+identically whether it is launched from the repo root or from anywhere else. It binds
+127.0.0.1, so it is reachable from this machine only.
 """
 import sys
+from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
-PAGE = "404.html"
+ROOT = Path(__file__).resolve().parent.parent   # repo root, independent of CWD
+PAGE = ROOT / "404.html"
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -22,10 +27,10 @@ class Handler(SimpleHTTPRequestHandler):
         if code != 404:
             return super().send_error(code, message, explain)
         try:
-            body = open(PAGE, "rb").read()
-        except OSError:                       # no 404.html: fall back to the default
+            body = PAGE.read_bytes()               # absolute: cannot miss the file
+        except OSError:                            # no 404.html: fall back to the default
             return super().send_error(code, message, explain)
-        self.send_response(404)               # a real 404 status, not a 200 with a page
+        self.send_response(404)                    # a real 404 status, not a 200 with a page
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
@@ -39,4 +44,4 @@ class Handler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8123
     print("serving http://localhost:%d/  (404.html wired for missing paths)" % port)
-    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+    ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, directory=str(ROOT))).serve_forever()
