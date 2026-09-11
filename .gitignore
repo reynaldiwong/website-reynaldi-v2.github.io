@@ -18,3 +18,7 @@ node_modules/
 lighthouse*.json
 _shots/
 _lowpoly/
+
+# Python bytecode from the tools/ scripts
+__pycache__/
+*.pyc
