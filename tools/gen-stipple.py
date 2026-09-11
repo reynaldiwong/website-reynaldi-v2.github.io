@@ -7,11 +7,12 @@ porcelain frame instead of baking a background.
 Run from repo root:  python tools/gen-stipple.py
 Outputs _lowpoly/me-stipple-6500.svg and _lowpoly/me-stipple-4000.svg
 """
+import math
 import os
 
 import numpy as np
 from PIL import Image
-from scipy.spatial import cKDTree
+from scipy.spatial import cKDTree, Delaunay
 
 SRC = "assets/img/me.jpg"
 OUT = "_lowpoly"
@@ -36,7 +37,7 @@ def tone_curve(lum):
     return np.clip((tone - lo) / (hi - lo), 0.0, 1.0) ** gamma
 
 
-def build(step, name, seed=SEED):
+def build(step, name, out=OUT, seed=SEED):
     tone = tone_curve(load())
     rng = np.random.default_rng(seed)
     jit = 0.4 * step                                # +-40% of the cell
@@ -77,8 +78,8 @@ def build(step, name, seed=SEED):
     parts.append("</svg>")
     svg = "".join(parts)
 
-    os.makedirs(OUT, exist_ok=True)
-    path = f"{OUT}/{name}"
+    os.makedirs(out, exist_ok=True)
+    path = f"{out}/{name}"
     with open(path, "w", encoding="utf-8") as f:
         f.write(svg)
 
@@ -92,9 +93,87 @@ def build(step, name, seed=SEED):
           f"max {nn.max():.2f}  std {nn.std():.2f}")
 
 
+def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
+    """Delaunay wireframe: tone-weighted points, edges drawn as thin cobalt
+    lines with opacity modulated by local tone (dense/bright in shadow,
+    sparse/faint over light skin). Cull long edges; dot each vertex."""
+    tone = tone_curve(load())
+    rng = np.random.default_rng(seed)
+    jit = 0.4 * step
+    pts, tones = [], []
+    for y in range(0, H, step):
+        for x in range(0, W, step):
+            cy = min(H - 1, y + step // 2)
+            cx = min(W - 1, x + step // 2)
+            t = tone[cy, cx]
+            if 2.2 * t ** 0.7 < MIN_R:
+                continue
+            pts.append((x + step / 2 + rng.uniform(-jit, jit),
+                        y + step / 2 + rng.uniform(-jit, jit)))
+            tones.append(t)
+    pts = np.array(pts)
+    tones = np.array(tones)
+    tri = Delaunay(pts)
+
+    edges = set()
+    for s in tri.simplices:
+        for i in range(3):
+            a, b = int(s[i]), int(s[(i + 1) % 3])
+            edges.add((a, b) if a < b else (b, a))
+
+    buckets = [[] for _ in range(levels)]
+    kept = 0
+    for (a, b) in edges:
+        x1, y1 = pts[a]
+        x2, y2 = pts[b]
+        if math.hypot(x2 - x1, y2 - y1) > max_edge:
+            continue
+        op = 0.12 + 0.43 * (tones[a] + tones[b]) / 2
+        li = min(levels - 1, int((op - 0.12) / 0.43 * levels))
+        buckets[li].append((x1, y1, x2, y2))
+        kept += 1
+
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
+             f'width="{W}" height="{H}">']
+    for i, b in enumerate(buckets):
+        if not b:
+            continue
+        op = 0.12 + (i + 0.5) / levels * 0.43
+        d = []
+        px = py = 0
+        for x1, y1, x2, y2 in sorted(b):
+            ix1, iy1 = int(round(x1)), int(round(y1))
+            ix2, iy2 = int(round(x2)), int(round(y2))
+            d.append(f"m{ix1 - px} {iy1 - py}l{ix2 - ix1} {iy2 - iy1}")
+            px, py = ix2, iy2
+        parts.append(f'<path d="{"".join(d)}" stroke="{COBALT}" stroke-width="0.6" '
+                     f'stroke-opacity="{op:.2f}" fill="none"/>')
+    # vertex dots (relative moves — keeps them compact)
+    vx, vy = int(round(pts[0][0])), int(round(pts[0][1]))
+    seg = [f"M{vx} {vy}h0"]
+    for (px, py) in pts[1:]:
+        rx, ry = int(round(px)), int(round(py))
+        seg.append(f"m{rx - vx} {ry - vy}h0")
+        vx, vy = rx, ry
+    parts.append(f'<path d="{"".join(seg)}" stroke="{COBALT}" stroke-width="1.6" '
+                 f'stroke-linecap="round" fill="none"/>')
+    parts.append("</svg>")
+    svg = "".join(parts)
+
+    os.makedirs(out, exist_ok=True)
+    path = f"{out}/{name}"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(svg)
+    print(f"{path}: {len(svg)} B = {len(svg) / 1024:.1f} KB, "
+          f"{len(pts)} nodes, {kept} edges kept of {len(edges)}")
+
+
 def main():
-    build(7, "me-stipple-6500.svg")   # denser
-    build(9, "me-stipple-4000.svg")   # sparser
+    build(9, "me-stipple.svg", out="assets/img")    # hero: ~4.5k dots (frozen)
+    build(7, "me-stipple-6500.svg")                 # reference densities
+    build(11, "me-stipple-3000.svg")
+    build_lines(15, "me-lines.svg", out="assets/img")   # hero line variant
+    build_lines(12, "me-lines-2500.svg")
 
 
 if __name__ == "__main__":

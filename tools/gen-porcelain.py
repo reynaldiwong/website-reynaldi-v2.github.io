@@ -111,10 +111,21 @@ def main():
          (W - 30, 660, 300, 62), (W - 170, 900, 340, 66),
          (W - 90, 1030, 320, 58)],
     )
+    upper_branch = vine(
+        "M 250 330 C 600 235, 980 305, 1345 220",
+        [(470, 258, 250, 54), (700, 266, 246, 56),
+         (960, 278, 242, 52), (1185, 240, 240, 54)],
+    )
+    lower_branch = vine(
+        "M 260 935 C 620 1010, 980 895, 1335 980",
+        [(490, 970, 66, 54), (720, 966, 66, 56),
+         (965, 938, 66, 52), (1185, 988, 66, 54)],
+    )
     body = (
         sprig(1430, 210, -150, 1.35, 6) +    # upper right
         sprig(180, 1080, -28, 1.2, 6) +      # lower left
         sprig(1520, 620, 168, 0.95, 5) +     # right edge
+        upper_branch + lower_branch +        # long branches through the middle
         left_vine + right_vine
     )
     svg = wrap(body)
