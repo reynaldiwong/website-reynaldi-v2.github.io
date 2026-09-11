@@ -245,8 +245,8 @@ def build_lines(step, name, out=OUT, seed=SEED, max_edge=17.5, levels=7):
         return (f'<path d="{"".join(seg)}" stroke="{COBALT}" stroke-width="{width}" '
                 f'stroke-linecap="round" fill="none"/>')
 
-    parts.append(dotset(on_edge, 1.6))     # contour anchors
-    parts.append(dotset(~on_edge, 1.0))    # sparse interior fill
+    parts.append(dotset(on_edge, 2.6))     # contour anchors — carry the shape
+    parts.append(dotset(~on_edge, 1.7))    # sparse interior fill
     parts.append("</svg>")
     svg = "".join(parts)
     write(f"{out}/{name}", svg)

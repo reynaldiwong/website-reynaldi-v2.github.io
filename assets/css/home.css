@@ -200,8 +200,8 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
 }
 .section-head .num {
   position: absolute;
-  top: -0.32em;
-  left: -0.05em;
+  top: -0.6em;
+  left: -0.5em;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: var(--fs-numeral);
@@ -283,6 +283,10 @@ main > section > .container,
 }
 .hero__kicker {
   margin-bottom: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  color: var(--cobalt);
+  letter-spacing: 0.02em;
 }
 .hero__name {
   font-family: var(--font-display);
@@ -297,7 +301,7 @@ main > section > .container,
   margin-top: 2.25rem;
   font-family: var(--font-ui);
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: var(--ink-soft);
 }
 .hero__role em {
@@ -374,7 +378,7 @@ main > section > .container,
   color: var(--cobalt);
 }
 .about__body p {
-  color: var(--muted);
+  color: var(--ink-soft);
   font-size: 1.05rem;
   margin-bottom: 1.25rem;
 }
@@ -384,7 +388,7 @@ main > section > .container,
   font-family: var(--font-accent);
   font-style: italic;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--ink-soft);
   font-size: 1.05rem;   /* smaller than body, unattributed pull-quote */
   line-height: 1.55;
   max-width: 52ch;
@@ -693,9 +697,9 @@ main > section > .container,
   flex-wrap: wrap;
 }
 .footer__brand {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: var(--ink);
 }
 
