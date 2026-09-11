@@ -315,14 +315,34 @@ main > section > .container,
   color: var(--cobalt);
 }
 .hero__scroll {
-  margin-top: 2.5rem;
+  /* Fixed to the viewport, bottom-centre, so it is out of the text column's flow entirely and
+     can neither move the layout nor be moved by it. The centring lives in `transform`, which
+     means every keyframe here MUST repeat translateX(-50%) - the entrance nudge below does, and
+     so does the reduced-motion rule; a bare `transform: none` in either place silently un-centres
+     it. The hide-on-scroll (hero.js) fades it out and leaves it unhittable. */
+  position: fixed;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--faint);
+  font-size: clamp(1.1rem, 1.4vw, 1.3rem);
+  color: var(--cobalt);
   letter-spacing: 0.06em;
+  transition: opacity 0.35s var(--ease-soft);
+}
+.hero__scroll.is-hidden { opacity: 0; pointer-events: none; }
+/* Short viewports: the hero's text is anchored near the page top and does not move with the
+   viewport height, so below ~630px the bottom-centre slot lands on the role text (measured:
+   role bottom 554px, hint top = height - 75). Smaller and lower buys back ~35px, which clears
+   the role down to ~596px of viewport height. Under that the two still meet, which is left as a
+   judgement call rather than solved by hiding the affordance on exactly the viewports that need
+   it most - and it retires on the first scroll anyway. */
+@media (max-height: 680px) {
+  .hero__scroll { bottom: 0.9rem; font-size: 1rem; }
 }
 .hero__scroll .arrow { display: inline-block; animation: nudge 2s var(--ease-soft) infinite; }
 
@@ -356,14 +376,16 @@ main > section > .container,
 }
 
 .hero__text {
-  /* Sits on the RIGHT column and overlaps the portrait's top-right:
-     - top: -2.5rem is the raise. A negative margin-top cannot do this job: grid and flex
-       align the MARGIN box, so margin-top: -2.5rem on a centred item pushes the text DOWN by
-       half the margin, and with align-self it would sit at the row top and again move down.
-     - margin-left clears the column gap and then eats 1.5rem into the portrait's column, so
-       the overlap stays exactly 1.5rem at any viewport width instead of drifting with the
-       clamp()'d gap. Zeroed on the stacked layout below.
-     - z-index: 1 keeps the text - and the typing name - above the portrait as it travels. */
+  /* Sits on the RIGHT column and overlaps the portrait's top-right. Current dials, measured at
+     1440x900 - keep these numbers in step with the values:
+     - top: 1.5rem puts the text's top edge 1.5rem BELOW the grid row's top. The row is sized by
+       the portrait, so the text starts 24px below the image's top.
+     - margin-left is (gap + 1.5rem) times a factor, currently 1.8. It clears the clamp()'d
+       column gap and then eats 1.8 x 1.5rem into the portrait's column: a measured 81.6px of
+       overlap. At 1x it was the 24px version. Expressing it against the gap keeps the overlap
+       from drifting with the viewport; the factor is the dial.
+     - Zeroed on the stacked layout below. z-index: 1 keeps the text - and the typing name -
+       above the portrait as it travels. */
   align-self: start;
   position: relative;
   top: 1.5rem;
@@ -382,27 +404,36 @@ main > section > .container,
    its own clock. The name is a JS typewriter (hero.js) rather than a CSS animation, so it
    has no rule here. Transform/opacity only, all `both` so nothing flashes before its turn,
    and none of these elements carry [data-reveal] - this replaces the scroll-reveal. */
-.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 0.5s; }
-.hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 1s; }
-.hero__scroll { animation: heroNudgeIn 0.6s var(--ease-soft) both;  animation-delay: 3.8s; }
+/* Re-timed so the name types against the frozen portrait, as asked: the kicker arrives first,
+   the name types 0.5s -> ~1.7s while the portrait is still held dead centre, the role lands as
+   the travel begins at 2s, and the hint closes the sequence at 2.8s. */
+.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 0.3s; }
+.hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 1.8s; }
+.hero__scroll { animation: heroNudgeIn 0.6s var(--ease-soft) both;  animation-delay: 2.8s; }
 
 /* Typewriter: the caret was removed by request - the name simply types itself out and
    stops. hero.js drives it, so there is no rule here. */
 
 @keyframes heroKickerIn  { from { opacity: 0; transform: translateX(-28px); } }
 @keyframes heroRoleIn    { from { opacity: 0; transform: translateX(28px); } }
-@keyframes heroNudgeIn   { from { opacity: 0; transform: translateY(-12px); } 50% { transform: translateY(2px); } }
+@keyframes heroNudgeIn   { from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+                           50% { transform: translateX(-50%) translateY(2px); }
+                           to  { transform: translateX(-50%); } }
 @keyframes heroPortraitIn {
   from { transform: translateX(var(--portrait-from, 25cqw)) scale(0.9); }
   to   { transform: translateX(0) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__kicker, .hero__role, .hero__scroll, .hero__portrait-frame {
+  .hero__kicker, .hero__role, .hero__portrait-frame {
     animation: none;
     opacity: 1;
     transform: none;
   }
+  /* No entrance animation, but the centring transform has to survive - `transform: none` here
+     would leave the hint pinned to the left edge instead of bottom-centre. The hide-on-scroll
+     is interaction, not motion, so it keeps working (hero.js). */
+  .hero__scroll { animation: none; opacity: 1; }
 }
 .hero__portrait-frame img {
   display: block;
