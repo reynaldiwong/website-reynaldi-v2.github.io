@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>404 — Page not found</title>
   <meta name="robots" content="noindex" />
-  <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="stylesheet" href="assets/css/tokens.css" />
-  <link rel="stylesheet" href="assets/css/base.css" />
-  <link rel="stylesheet" href="assets/css/home.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <!-- Absolute from here down, deliberately: a 404 is served for NESTED wrong paths
+       like /foo/bar, where relative hrefs would resolve to /foo/assets/... and the
+       one page meant to survive a bad path would load unstyled. -->
+  <link rel="stylesheet" href="/assets/css/tokens.css" />
+  <link rel="stylesheet" href="/assets/css/base.css" />
+  <link rel="stylesheet" href="/assets/css/home.css" />
   <style>
     /* home.css gives the home page a fixed grain overlay via body::after. That is
        the only decorative layer that reaches this page — the .accent porcelain

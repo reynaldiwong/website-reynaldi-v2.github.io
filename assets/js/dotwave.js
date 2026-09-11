@@ -10,8 +10,8 @@
   if (!img || !window.requestAnimationFrame) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const GAP = 7, BASE_R = 2, CULL = 0.1, K = 0.02, STEP = 0.03, TAU = Math.PI * 2;
-  const FILL = '#f7f6f2', DOT = '#163a6b', SRC = 'assets/img/me.webp';
+  const GAP = 8, BASE_R = 2, CULL = 0.1, K = 0.02, STEP = 0.03, TAU = Math.PI * 2;
+  const FILL = '#163a6b', DOT = '#f4f7fb', SRC = 'assets/img/me.webp';
   const w = img.getAttribute('width') | 0 || 528;
   const h = img.getAttribute('height') | 0 || 704;
 
