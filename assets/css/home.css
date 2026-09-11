@@ -331,10 +331,37 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
+  animation: heroPortraitIn 0.8s var(--ease-soft) both;
+  animation-delay: 0.15s;
   /* Frameless. The mat, border, radius, shadow and cobalt accent are gone; the only thing
      giving the portrait shape is the <img> rules below. Its highlight stop is the page's
      own --bg, so the bright end of the duotone dissolves into the porcelain rather than
      sitting on a plate. */
+}
+
+/* ---------------- Hero load entrance ---------------- */
+/* The hero sits above the fold, so it needs load timing rather than a scroll-reveal: these
+   elements carry no [data-reveal] any more, so the two systems never contend for
+   opacity/transform. `both` holds the from-state through the delay, so nothing flashes
+   before its turn. Transforms and opacity only - no layout, no CLS. */
+.hero__kicker { animation: heroIn 0.8s var(--ease-soft) both; }
+.hero__name   { animation: heroIn 0.8s var(--ease-soft) both; animation-delay: 0.1s; }
+.hero__role   { animation: heroIn 0.8s var(--ease-soft) both; animation-delay: 0.2s; }
+.hero__scroll { animation: heroIn 0.8s var(--ease-soft) both; animation-delay: 0.3s; }
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(20px); }
+}
+@keyframes heroPortraitIn {
+  from { opacity: 0; transform: scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__kicker, .hero__name, .hero__role, .hero__scroll, .hero__portrait-frame {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 .hero__portrait-frame img {
   display: block;
@@ -754,12 +781,10 @@ main b {
 .js [data-reveal] {
   opacity: 0;
   transform: translateY(26px);
-  filter: blur(6px);
-  transition: opacity var(--dur-reveal) var(--ease-soft),
-              transform var(--dur-reveal) var(--ease-soft),
-              filter var(--dur-reveal) var(--ease-soft);
+  transition: opacity var(--dur) var(--ease-soft),
+              transform var(--dur) var(--ease-soft);
   transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 .js [data-reveal='left']   { transform: translateX(-32px); }
 .js [data-reveal='right']  { transform: translateX(32px); }
@@ -767,7 +792,6 @@ main b {
 [data-reveal].in-view {
   opacity: 1;
   transform: none;
-  filter: blur(0);
 }
 
 /* ---------------- Keyframes ---------------- */

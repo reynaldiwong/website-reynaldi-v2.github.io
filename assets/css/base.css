@@ -243,7 +243,6 @@ section[id] {
   [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
-    filter: none !important;
     transition: none !important;
   }
 }
