@@ -17,7 +17,7 @@
 
   const GAP = 8, BASE_R = 2, CULL = 0.1, K = 0.02, STEP = 0.03, TAU = Math.PI * 2;
   const ALPHA_MIN = 128;                 // in step with tools/cutout.py and gen-dots.py
-  const FILL = '#f4f7fb', DOT = '#163a6b', SRC = 'assets/img/me.webp';   // swapped: pale field, cobalt dots
+  const FILL = null, DOT = '#163a6b', SRC = 'assets/img/me.webp';   // null FILL = transparent field
   const w = img.getAttribute('width') | 0 || 528;
   const h = img.getAttribute('height') | 0 || 528;
 
@@ -35,8 +35,9 @@
   let px = null, t = 0, running = false, raf = 0;
 
   const draw = () => {
-    ctx.fillStyle = FILL;
-    ctx.fillRect(0, 0, w, h);
+    // Clear, never fill: the field is transparent, so the porcelain page shows through.
+    // fillRect here would also leave the previous frame's dots to smear.
+    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = DOT;
     for (let y = 0; y < h; y += GAP) {
       for (let x = 0; x < w; x += GAP) {

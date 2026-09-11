@@ -25,7 +25,10 @@ Use --no-mask to see the unmasked dots for comparison.
 
 Run from repo root:
   python tools/gen-dots.py --out assets/img --name me-dots.svg --size 528x528 \
-         --fill "#f4f7fb" --dot "#163a6b" --gap 8
+         --dot "#163a6b" --gap 8
+
+The field is transparent by default: no <rect>, so the page shows through and the dots
+alone carry the silhouette. Pass --fill "#163a6b" to put an opaque plate back.
 """
 import argparse
 import os
@@ -34,8 +37,8 @@ import numpy as np
 from PIL import Image
 
 SRC = "assets/img/me.webp"   # the cutout: RGB for brightness, ALPHA for the mask
-FILL = "#f4f7fb"      # pale plate  (swapped with DOT at the user's request)
-DOT = "#163a6b"       # cobalt dots (swapped with FILL)
+FILL = "none"         # transparent field: no plate, the page shows through
+DOT = "#163a6b"       # cobalt dots (the porcelain ink)
 GRID = 6              # gap
 BASE_R = 2.0          # baseRadius
 WAVE_K = 0.02         # x*0.02 + y*0.02
@@ -114,8 +117,9 @@ def render(bright, mask, t):
             buckets[bi].append((int(x), int(y)))
 
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
-             f'width="{w}" height="{h}">',
-             f'<rect width="{w}" height="{h}" fill="{FILL}"/>']
+             f'width="{w}" height="{h}">']
+    if FILL and str(FILL).lower() != "none":
+        parts.append(f'<rect width="{w}" height="{h}" fill="{FILL}"/>')
     for i, pts in enumerate(buckets):
         if not pts:
             continue
@@ -140,7 +144,8 @@ def main():
     ap.add_argument("--size", default="528x704", help="WxH canvas")
     ap.add_argument("--frame", type=float, default=0.0, help="wave phase t")
     ap.add_argument("--crop", choices=("centre", "skin"), default="centre")
-    ap.add_argument("--fill", default=FILL, help="field colour (reference: #16181d)")
+    ap.add_argument("--fill", default=FILL,
+                    help='field colour, or "none" for a transparent field (default)')
     ap.add_argument("--dot", default=DOT, help="dot colour")
     ap.add_argument("--gap", type=int, default=GRID, help="grid gap (reference: 6)")
     ap.add_argument("--no-mask", action="store_true",
