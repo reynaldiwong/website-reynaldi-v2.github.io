@@ -407,9 +407,9 @@ main > section > .container,
 /* Re-timed so the name types against the frozen portrait, as asked: the kicker arrives first,
    the name types 0.5s -> ~1.7s while the portrait is still held dead centre, the role lands as
    the travel begins at 2s, and the hint closes the sequence at 2.8s. */
-.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 0.3s; }
+.hero__kicker { animation: heroKickerIn 0.7s var(--ease-soft) both; animation-delay: 0.8s; }
 .hero__role   { animation: heroRoleIn 0.8s var(--ease-soft) both;   animation-delay: 1.8s; }
-.hero__scroll { animation: heroNudgeIn 0.6s var(--ease-soft) both;  animation-delay: 2.8s; }
+.hero__scroll { animation: heroNudgeIn 0.8s var(--ease-soft) both;  animation-delay: 2.5s; }
 
 /* Typewriter: the caret was removed by request - the name simply types itself out and
    stops. hero.js drives it, so there is no rule here. */
