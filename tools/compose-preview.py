@@ -80,9 +80,10 @@ def portrait_sheet():
 
 def change_sheet():
     items = [
-        ("G-selection.png", "Selection block: square corners, 0.12em/0.2em padding, and the lead phrase now carries it too — all 8.31:1"),
-        ("F-spotify-match.png", "Spotify column matches the video by ratio (3:2): 312px vs 312px at 1440, 223px vs 223px at 375"),
-        ("H-numerals.png", "Section numerals are ui-monospace now — editor line numbers instead of display serif"),
+        ("I-numeral-castoro.png", "Numeral — Castoro Titling (shipped): a titling face at 144px, tracking 0"),
+        ("I-numeral-mono.png", "Numeral — the previous --font-mono, captured by overriding the rule in-page. Not shipped; comparison only"),
+        ("J-role-block.png", "Hero role: 'Mechatronics origin' inked, zero vertical padding — the `·` sits outside the <em> so the block inks the words, not the dot"),
+        ("K-lead-block.png", "About lead: vertical padding is 0 now, so the block no longer overlaps the lines above and below"),
     ]
     W = 1120
     tiles = []
@@ -101,8 +102,8 @@ def change_sheet():
     for im, cap in tiles:
         canvas.paste(im, (pad, y)); y += im.height + 10
         d.text((pad, y), cap, font=font(24, bold=False), fill=SOFT); y += 50 + gap
-    canvas.save(f"{S}/D-this-round.png", optimize=True)
-    print("D-this-round.png", canvas.size)
+    canvas.save(f"{S}/E-this-round.png", optimize=True)
+    print("E-this-round.png", canvas.size)
 
 
 change_sheet()

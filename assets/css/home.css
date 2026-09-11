@@ -206,11 +206,11 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   position: absolute;
   top: -0.4em;
   left: -0.1em;
-  font-family: var(--font-mono);   /* reads as an editor/terminal line number */
+  font-family: var(--font-titling);   /* was --font-mono: Castoro Titling reads as a titling numeral, not a line number */
   font-weight: 400;
   font-size: var(--fs-numeral);
   line-height: 0.8;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;   /* the -0.02em was tuned for mono advances */
   color: var(--cobalt);
   opacity: 0.28;
   z-index: 0;
@@ -420,7 +420,18 @@ main b {
 .about__lead em {
   background: var(--cobalt);
   color: #fff;
-  padding: 0.1em 0.15em;
+  padding: 0 0.2em;   /* no vertical padding — the lead's line-height is 1.05
+                         and any top/bottom overlap the lines above and below */
+  font-style: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* the role's qualifier carries the same block. The `·` separator sits outside
+   this <em> in the markup, so the block inks the words and not the dot. */
+.hero__role em {
+  background: var(--cobalt);
+  color: #fff;
+  padding: 0 0.2em;
   font-style: normal;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;

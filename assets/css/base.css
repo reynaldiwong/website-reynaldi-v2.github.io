@@ -30,6 +30,17 @@
   size-adjust: 112%;
   src: url('../fonts/cormorant-garamond-600-italic.woff2') format('woff2');
 }
+/* Castoro Titling — section numerals only. No size-adjust needed: .section-head
+   .num is position:absolute, so a swap cannot shift layout. No preload either —
+   the numerals sit below the fold. Latin subset (the digits are U+0030-0039;
+   the latin-ext file does NOT contain them). */
+@font-face {
+  font-family: 'Castoro Titling';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/castoro-titling-400.woff2') format('woff2');
+}
 
 /* ---- Reset ---- */
 *,
