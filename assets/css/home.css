@@ -337,7 +337,8 @@ main > section > .container,
      whose edge lands at the mid-sides, so the corners faded out and the plate
      read as rounded. It is a hard-edged rectangle now. */
 }
-.hero__portrait-frame img {
+.hero__portrait-frame img,
+.hero__portrait-frame canvas {
   display: block;
   width: 100%;
   height: auto;
@@ -363,10 +364,11 @@ main > section > .container,
 .about__lead {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
   line-height: 1.05;
   letter-spacing: var(--track-display);
   color: var(--ink);
+  padding-top: 1.5rem;
 }
 .about__lead em {
   color: var(--cobalt);
@@ -426,16 +428,6 @@ main b {
 .field ::selection,
 .field--alt ::selection,
 .terminal ::selection { background: var(--on-cobalt); color: var(--field); }
-.about__tagline {
-  margin-top: 2rem;
-  font-family: var(--font-accent);
-  font-style: italic;
-  font-weight: 600;
-  color: var(--ink-soft);
-  font-size: 1.05rem;   /* smaller than body, unattributed pull-quote */
-  line-height: 1.55;
-  max-width: 52ch;
-}
 
 /* ---------------- Terminal card (inside About) ---------------- */
 .terminal {

@@ -111,7 +111,7 @@ def render(bright, t):
 
 
 def main():
-    global FILL, DOT
+    global FILL, DOT, GRID
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="_shots")
     ap.add_argument("--name", default="dotprofile.svg")
@@ -120,9 +120,10 @@ def main():
     ap.add_argument("--crop", choices=("centre", "skin"), default="centre")
     ap.add_argument("--fill", default=FILL, help="field colour (reference: #16181d)")
     ap.add_argument("--dot", default=DOT, help="dot colour")
+    ap.add_argument("--gap", type=int, default=GRID, help="grid gap (reference: 6)")
     args = ap.parse_args()
 
-    FILL, DOT = args.fill, args.dot
+    FILL, DOT, GRID = args.fill, args.dot, args.gap
     w, h = (int(v) for v in args.size.lower().split("x"))
     img = Image.open(SRC).convert("RGB")
     top = skin_top(img, h) if args.crop == "skin" else None
