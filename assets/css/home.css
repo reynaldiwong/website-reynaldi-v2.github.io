@@ -346,6 +346,10 @@ main > section > .container,
   object-fit: cover;
   animation: inkBreathe 6s ease-in-out infinite;
 }
+/* dotwave.js hides the fallback with the `hidden` attribute, but the `display:
+   block` above (specificity 0,1,1) beats the UA's `[hidden]` rule (0,1,0) — so
+   the plate rendered twice and the hero doubled to 1197px. This restores it. */
+.hero__portrait-frame img[hidden] { display: none; }
 @keyframes inkBreathe {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.88; }
