@@ -17,3 +17,4 @@ node_modules/
 # Local verification artifacts (not part of the site)
 lighthouse*.json
 _shots/
+_lowpoly/
