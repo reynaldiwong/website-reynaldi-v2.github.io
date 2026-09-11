@@ -333,12 +333,9 @@ main > section > .container,
   position: relative;
   /* the dot-matrix plate carries its own cobalt field, so there is no duotone
      underlay and no second pulse layer any more: the asset is the whole
-     portrait. The mask dissolves the plate's edge into the porcelain so it
-     reads as a plate sitting in the page rather than a framed image. On a
-     rectangular box the gradient is elliptical, so the fade is proportional to
-     the plate rather than circular. */
-  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+     portrait. No mask either — a radial mask on a 3:4 box becomes an ellipse
+     whose edge lands at the mid-sides, so the corners faded out and the plate
+     read as rounded. It is a hard-edged rectangle now. */
 }
 .hero__portrait-frame img {
   display: block;
@@ -393,10 +390,14 @@ main b {
 /* the lead pull-quote phrase carries the same block — at display size that is
    a statement, which is the point */
 .about__lead em {
-  background: var(--cobalt);
+  /* a SIZED BAND rather than a full-line block: background-size 100% x 72%
+     centred paints a solid cobalt band across the middle 72% of the line box,
+     so the highlight pulls back at top and bottom while the text keeps its own
+     size and position. 72% is the dial — lower shortens it, 100% restores the
+     full-line block. */
+  background: linear-gradient(var(--cobalt), var(--cobalt)) center / 100% 72% no-repeat;
   color: #fff;
-  padding: 0 0.2em;   /* no vertical padding — the lead's line-height is 1.05
-                         and any top/bottom overlap the lines above and below */
+  padding: 0 0.2em;
   font-style: normal;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -404,7 +405,7 @@ main b {
 /* the role's qualifier carries the same block. The `·` separator sits outside
    this <em> in the markup, so the block inks the words and not the dot. */
 .hero__role em {
-  background: var(--cobalt);
+  background: linear-gradient(var(--cobalt), var(--cobalt)) center / 100% 72% no-repeat;   /* same band as the lead */
   color: #fff;
   padding: 0 0.2em;
   font-style: normal;
