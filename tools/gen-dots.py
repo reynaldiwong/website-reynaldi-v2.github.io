@@ -109,14 +109,18 @@ def render(bright, t):
 
 
 def main():
+    global FILL, DOT
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="_shots")
     ap.add_argument("--name", default="dotprofile-square.svg")
     ap.add_argument("--side", type=int, default=528)
     ap.add_argument("--frame", type=float, default=0.0, help="wave phase t")
     ap.add_argument("--crop", choices=("centre", "skin"), default="centre")
+    ap.add_argument("--fill", default=FILL, help="field colour (the reference's own is #16181d)")
+    ap.add_argument("--dot", default=DOT, help="dot colour")
     args = ap.parse_args()
 
+    FILL, DOT = args.fill, args.dot
     img = Image.open(SRC).convert("RGB")
     top = skin_top(img, args.side) if args.crop == "skin" else None
     bright = cover_brightness(img, args.side, top)

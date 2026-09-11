@@ -331,54 +331,28 @@ main > section > .container,
 }
 .hero__portrait-frame {
   position: relative;
-  /* faint cobalt duotone carries the TONE (the silhouette and the facial
-     shadows); the line network on top becomes texture over it */
-  background-image: url('../img/me-duotone.webp');
-  background-size: cover;
-  background-position: center;
-  /* dissolve the outer edge into the porcelain instead of ending at a hard edge */
+  /* the dot-matrix plate carries its own near-black field (#16181d — the
+     reference component's own background), so there is no duotone underlay and
+     no second pulse layer any more: the asset is the whole portrait. The mask
+     dissolves the plate's edge into the porcelain so it reads as a plate
+     sitting in the page rather than a framed image. */
   -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
   mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
 }
 .hero__portrait-frame img {
+  display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;          /* the crop is square now */
   object-fit: cover;
-  mix-blend-mode: multiply;
   animation: inkBreathe 6s ease-in-out infinite;
-}
-/* vertex-dot layer: the SAME point set as the lines (dots_only), pulsing in
-   anti-phase with the breathe, so the dots twinkle while the lines hold.
-   Two composited layers, transform/opacity only — no per-dot animation. */
-.hero__portrait-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('../img/me-lines-dots.svg') center / contain no-repeat;
-  opacity: 0.05;
-  pointer-events: none;
-  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-  animation: dotTwinkle 6s ease-in-out infinite;
 }
 @keyframes inkBreathe {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.88; }
 }
-/* anti-phase with the breathe: vertices swing ~0.34 -> ~0.78 combined with the
-   light base copy, so the network visibly settles and surfaces while the
-   strokes hold. The dots are small and sparse, so this moves under half a
-   percent of the frame's pixels — it reads as a shimmer over the point field,
-   not as large-area motion. */
-@keyframes dotTwinkle {
-  0%, 100% { opacity: 0.05; }
-  50%      { opacity: 0.70; }
-}
 @media (prefers-reduced-motion: reduce) {
-  .hero__portrait-frame img,
-  .hero__portrait-frame::after { animation: none; }
-  .hero__portrait-frame::after { opacity: 0.22; }  /* static shimmer, no motion */
+  .hero__portrait-frame img { animation: none; }
 }
 
 /* ---------------- About ---------------- */
