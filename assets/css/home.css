@@ -304,6 +304,24 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 8px); }
   transition: transform 0.9s var(--ease-soft);
 }
 .hero__portrait-frame:hover img { transform: scale(1.02); }
+/* optional shimmer: a stacked copy of the dot layer breathing in opacity,
+   transform-free, zero JS, killed under reduced-motion */
+.hero__portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../img/me-dots-8.svg') center / cover no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  animation: dotBreath 6s ease-in-out infinite;
+}
+@keyframes dotBreath {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.22; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__portrait-frame::after { animation: none; opacity: 0; }
+}
 .hero__badge {
   position: absolute;
   bottom: 18px;
