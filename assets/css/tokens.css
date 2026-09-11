@@ -59,7 +59,7 @@
   /* ---- Display type scale ---- */
   --fs-hero:    clamp(3rem, 9vw, 9rem);
   --fs-section: clamp(2rem, 6vw, 4.5rem);
-  --fs-numeral: clamp(3rem, 9vw, 7rem);
+  --fs-numeral: clamp(3rem, 9vw, 6rem);
   --track-display: -0.02em;   /* display only — never body */
 
   /* ---- Motion ---- */
