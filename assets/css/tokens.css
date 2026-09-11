@@ -1,0 +1,54 @@
+/* ============================================================
+   tokens.css — Porcelain design tokens (blue & white)
+   Single source of truth for color, type, radius, shadow, motion.
+   ============================================================ */
+
+:root {
+  /* ---- Porcelain surfaces (warm white ceramic) ---- */
+  --bg:            #f7f6f2;
+  --surface:       #ffffff;
+  --surface-2:     #eef2f6;   /* faint blue-tinted panel */
+  --mist:          #e5ecf3;   /* stronger blue tint */
+
+  /* ---- Cobalt inks (blue & white palette) ---- */
+  --ink:           #14263f;   /* near-navy text */
+  --ink-soft:      #33465f;   /* secondary heading */
+  --muted:         #526178;   /* body / secondary text (AA on porcelain) */
+  --faint:         #5c6b7f;   /* eyebrow / captions (AA on porcelain) */
+
+  /* ---- Cobalt accent ---- */
+  --cobalt:        #1f4e8c;
+  --cobalt-deep:   #163a6b;
+  --cobalt-soft:   #dce7f4;   /* accent tint background */
+
+  /* ---- Lines ---- */
+  --line:          #e0e6ed;
+  --line-strong:   #c8d3df;
+
+  /* ---- Radii (rounded corners are a core ask) ---- */
+  --r-sm:   10px;
+  --r-md:   18px;
+  --r-lg:   26px;
+  --r-xl:   34px;
+  --r-pill: 999px;
+
+  /* ---- Elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(20, 38, 63, 0.06), 0 4px 14px rgba(20, 38, 63, 0.05);
+  --shadow-md: 0 10px 34px rgba(20, 38, 63, 0.10);
+  --shadow-lg: 0 24px 60px rgba(20, 38, 63, 0.14);
+
+  /* ---- Typography ---- */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body:    'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', 'Fira Mono', Menlo, monospace;
+
+  /* ---- Motion ---- */
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft:  cubic-bezier(0.22, 1, 0.36, 1);
+  --dur:        0.6s;
+
+  /* ---- Layout ---- */
+  --container: 1080px;
+  --gutter:    clamp(1.25rem, 5vw, 3rem);
+  --nav-h:     72px;
+}

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rey — Home</title>
+  <meta name="description" content="Reynaldi Wong — DevOps Engineer. I automate the boring stuff: Kubernetes, Docker, Jenkins, CI/CD." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Reynaldi Wong — DevOps Engineer" />
+  <meta property="og:description" content="I automate the boring stuff: Kubernetes, Docker, Jenkins, CI/CD." />
+  <meta property="og:image" content="https://reynaldiwong.com/og-image.png" />
+  <meta property="og:url" content="https://reynaldiwong.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://reynaldiwong.com/og-image.png" />
+
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <!-- Preload above-the-fold fonts -->
+  <link rel="preload" href="assets/fonts/cormorant-garamond-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/img/me.webp" as="image" />
+
+  <script>document.documentElement.classList.add('js');</script>
+  <noscript><style>[data-reveal]{opacity:1!important;transform:none!important;transition:none!important}</style></noscript>
+
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/home.css" />
+</head>
+<body>
+  <a class="skip-link" href="#home">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="#home">reynaldiwong<span class="dot">.</span></a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#experience">Experience</a>
+        <a href="#stack">Stack</a>
+        <a href="#off-duty">Off-duty</a>
+        <a href="#contact" class="nav__cta">Contact</a>
+      </nav>
+      <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="drawer" id="drawer" inert>
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#stack">Stack</a>
+    <a href="#off-duty">Off-duty</a>
+    <a href="#contact">Contact</a>
+  </div>
+
+  <main>
+    <!-- ============ HOME / HERO ============ -->
+    <section class="hero" id="home">
+      <div class="container hero__grid">
+        <div class="hero__text">
+          <div class="eyebrow hero__kicker" data-reveal>// DevOps Engineer</div>
+          <h1 class="hero__json" id="hero-json" data-reveal aria-label="Reynaldi Wong, DevOps Engineer, origin Mechatronics Engineering">{
+  "name": "Reynaldi Wong",
+  "class": "DevOps Engineer",
+  "origin": "Mechatronics Engineering",
+  "playtime": {
+    "years": 4,
+    "months": 1,
+    "days": 12,
+    "hours": 0,
+    "minutes": 0,
+    "seconds": 0
+  }
+}</h1>
+          <a class="hero__scroll" href="#about" data-reveal data-reveal-delay="120">
+            <span>scroll</span><span class="arrow">↓</span>
+          </a>
+        </div>
+        <div class="hero__portrait" data-reveal="right">
+          <div class="hero__portrait-frame">
+            <picture>
+              <source srcset="assets/img/me.webp" type="image/webp" />
+              <img src="assets/img/me.jpg" alt="Portrait of Reynaldi Wong" width="528" height="704" fetchpriority="high" />
+            </picture>
+          </div>
+          <span class="hero__badge"><span class="pulse"></span> open to good work</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="about" id="about">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="num">01</span>
+          <h2>About</h2>
+        </div>
+        <div class="about__grid">
+          <div>
+            <p class="about__lead" data-reveal>Automation is my answer to <em>“what if I could just do everything myself?”</em></p>
+          </div>
+          <div class="about__body">
+            <p data-reveal>Hi, my name is <strong>Reynaldi Wong</strong>. You can call me <strong>Rey</strong>. I've always been a lazy person. And because of that, I constantly ask myself <em>"What if I could just automate everything?"</em> That mindset led me to study Mechatronics Engineering.</p>
+            <p data-reveal>After graduating, I began working with microcontrollers and machines, using tools like Arduino, PLCs, and even Raspberry Pi. And then, somewhere along the way, I began working as a DevOps Engineer. That discovery changed my direction.</p>
+            <p data-reveal>I feel that this line of work still stays close to what I love — automation, with the fact that I can do almost everything — while on the other side there are many limitations when you handle physical stuff. At least that's what I feel. If we talk about the details, I know it leans more toward being a Platform Engineer rather than a DevOps Engineer. 😂</p>
+            <p data-reveal>I really enjoy working with <strong>Kubernetes</strong>, <strong>Docker</strong>, and <strong>Jenkins</strong> — how a deployment pipeline for a containerized application can be automated, and how you can make it faster by only tweaking your current scripts.</p>
+            <p data-reveal>Currently I'm working as a DevOps Engineer at <strong>Digital Daya Teknologi</strong>, mainly focusing on improving the deployment pipeline for fintech applications.</p>
+            <blockquote class="about__tagline" data-reveal>
+              “You should enjoy the little detours to the fullest. Because that's where you'll find things more important than what you want.” — HxH
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EXPERIENCE ============ -->
+    <section class="experience" id="experience">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="num">02</span>
+          <h2>Work Experience</h2>
+        </div>
+        <div class="timeline">
+          <article class="timeline__item is-current" data-reveal>
+            <div class="timeline__year">2023 — Present</div>
+            <div class="timeline__card">
+              <h3>DevOps Engineer</h3>
+              <div class="company">Digital Daya Teknologi</div>
+              <p>Maintained and developed cloud infrastructure and CI/CD pipelines for applications at Nobu Bank.</p>
+              <div class="bottom-line">Improved script maintainability and deployment time by <b>~40%</b>.</div>
+            </div>
+          </article>
+          <article class="timeline__item" data-reveal>
+            <div class="timeline__year">2021 — 2023</div>
+            <div class="timeline__card">
+              <h3>Project Supervisor</h3>
+              <div class="company">Dankos Farma (a Kalbe Company)</div>
+              <p>Designed and provisioned on-premise infrastructure, including servers and networking, for data center.</p>
+              <div class="bottom-line">Implemented data centralization to consolidate all factory data onto a single server for corporate-scale operations.</div>
+            </div>
+          </article>
+          <article class="timeline__item" data-reveal>
+            <div class="timeline__year">2019 — 2021</div>
+            <div class="timeline__card">
+              <h3>Automation Specialist</h3>
+              <div class="company">Finusolprima Farma Internasional (a Kalbe Company)</div>
+              <p>Designed and provisioned on-premise infrastructure, including servers and networking, for data center.</p>
+              <div class="bottom-line">Implemented data centralization to consolidate all factory data onto a single server for corporate-scale operations.</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STACK ============ -->
+    <section class="stack" id="stack">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="num">03</span>
+          <h2>Stuff I Have Worked With</h2>
+        </div>
+        <p class="stack__sub" data-reveal>(But still learning to master them)</p>
+        <div class="stack__grid">
+          <a class="stack__card" href="https://kubernetes.io/" target="_blank" rel="noopener" data-reveal data-reveal-delay="0"><img src="assets/img/tools/kubernetes.png" alt="Kubernetes" loading="lazy" /><span>Kubernetes</span></a>
+          <a class="stack__card" href="https://www.docker.com/" target="_blank" rel="noopener" data-reveal data-reveal-delay="30"><img src="assets/img/tools/docker.png" alt="Docker" loading="lazy" /><span>Docker</span></a>
+          <a class="stack__card" href="https://www.jenkins.io/" target="_blank" rel="noopener" data-reveal data-reveal-delay="60"><img src="assets/img/tools/jenkins.png" alt="Jenkins" loading="lazy" /><span>Jenkins</span></a>
+          <a class="stack__card" href="https://argo-cd.readthedocs.io/" target="_blank" rel="noopener" data-reveal data-reveal-delay="90"><img src="assets/img/tools/argocd.png" alt="ArgoCD" loading="lazy" /><span>ArgoCD</span></a>
+          <a class="stack__card" href="https://cloud.google.com/" target="_blank" rel="noopener" data-reveal data-reveal-delay="120"><img src="assets/img/tools/gcp.png" alt="GCP" loading="lazy" /><span>GCP</span></a>
+          <a class="stack__card" href="https://www.ansible.com/" target="_blank" rel="noopener" data-reveal data-reveal-delay="150"><img src="assets/img/tools/ansible.png" alt="Ansible" loading="lazy" /><span>Ansible</span></a>
+          <a class="stack__card" href="https://n8n.io/" target="_blank" rel="noopener" data-reveal data-reveal-delay="180"><img src="assets/img/tools/n8n.png" alt="n8n" loading="lazy" /><span>n8n</span></a>
+          <a class="stack__card" href="https://www.sonarqube.org/" target="_blank" rel="noopener" data-reveal data-reveal-delay="210"><img src="assets/img/tools/sonarqube.png" alt="SonarQube" loading="lazy" /><span>SonarQube</span></a>
+          <a class="stack__card" href="https://www.python.org/" target="_blank" rel="noopener" data-reveal data-reveal-delay="240"><img src="assets/img/tools/python.png" alt="Python" loading="lazy" /><span>Python</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ OFF-DUTY ============ -->
+    <section class="off-duty" id="off-duty">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="num">04</span>
+          <h2>&gt; Out of the Terminal</h2>
+        </div>
+        <div class="off-duty__grid">
+          <div class="off-duty__panel off-duty__media" data-reveal>
+            <video autoplay loop muted playsinline preload="metadata" poster="assets/img/off-duty-poster.webp">
+              <source src="assets/img/off-duty.webm" type="video/webm" />
+            </video>
+            <div class="off-duty__caption">🎮 Gaming mode</div>
+          </div>
+          <div class="off-duty__panel off-duty__body" data-reveal data-reveal-delay="80">
+            <div>
+              <div class="vibe">Vibin' while working 🎧</div>
+              <p>Outside work, I'm a person of simple pleasures. I love to play video games. 🎮</p>
+            </div>
+            <div class="off-duty__spotify">
+              <iframe
+                title="Rey's working playlist"
+                src="https://open.spotify.com/embed/playlist/4S5qFLA6lAJQvIS9uQiWE0?utm_source=generator&theme=0"
+                loading="lazy"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+              </iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="contact" id="contact">
+      <div class="container">
+        <div class="contact__panel" data-reveal="scale">
+          <span class="eyebrow">05 · Get in touch</span>
+          <h2>Let's automate something together.</h2>
+          <p>Anyway, feel free to get in touch with me. Whether you have a question, a project idea, or just want to say hi, I'd love to hear from you!</p>
+          <div class="contact__actions">
+            <a class="btn" href="mailto:reynaldiwong@gmail.com">Email me</a>
+            <a class="btn btn--ghost" href="https://linkedin.com/in/reynaldiwong/" target="_blank" rel="noopener">LinkedIn</a>
+            <a class="btn btn--ghost" href="https://github.com/reynaldiwong/" target="_blank" rel="noopener">GitHub</a>
+          </div>
+          <div class="contact__socials">
+            <a href="https://discord.com/users/149162915444817920" target="_blank" rel="noopener">Discord</a>
+            <a href="mailto:reynaldiwong@gmail.com">reynaldiwong@gmail.com</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span class="footer__brand">reynaldiwong<span style="color: var(--cobalt)">.</span></span>
+      <span>© <span id="year">2026</span> · Reynaldi Wong</span>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="assets/js/reveal.js" defer></script>
+  <script src="assets/js/nav.js" defer></script>
+  <script src="assets/js/hero.js" defer></script>
+</body>
+</html>
