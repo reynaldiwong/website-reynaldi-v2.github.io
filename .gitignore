@@ -11,6 +11,9 @@ desktop.ini
 # Node (if any tooling is ever added — the site itself is build-free)
 node_modules/
 
+# Wrangler local state, created by `npx wrangler deploy` (not part of the site)
+.wrangler/
+
 # Logs
 *.log
 

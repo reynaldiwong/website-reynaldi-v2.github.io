@@ -1,0 +1,43 @@
+# What does NOT ship. Wrangler reads this as a .gitignore-style denylist.
+#
+# Why this file exists: with assets.directory "./" Wrangler walks the whole working tree and
+# does not respect .gitignore. The first dry-run read 8319 files and hard-failed on
+# .venv-seg/.../llvmlite.dll at 115 MiB against the 25 MiB per-asset limit - so the deploy
+# command fails outright, not merely uploading more than it should.
+#
+# What DOES ship (keep this list in mind before adding patterns): index.html, 404.html,
+# assets/css, assets/js, assets/fonts, the images under assets/img, favicon.png,
+# apple-touch-icon.png, og-image.png, robots.txt, sitemap.xml - and _headers, which Wrangler
+# parses rather than serves, so it must stay in the assets directory.
+
+# The segmentation venv for tools/cutout.py: ~400 MB, and the direct cause of the failure.
+.venv-seg/
+
+# Local verification output, never part of the site.
+_shots/
+_lowpoly/
+
+# Tooling and VCS state.
+.git/
+.gitignore
+.wrangler/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+node_modules/
+
+# Generator scripts and the raw inputs they work from. None of it is reachable from the two
+# HTML files; the derived assets they produce (me-duotone.webp, ckad-credly-transparent.webp)
+# are what ships. Excluding them here keeps them in git for regeneration - the deploy is the
+# only thing they are kept out of.
+tools/
+me.jpg
+assets/img/badges/ckad-credly.png
+assets/img/badges/ckad-credly-transparent.png
+
+# Repo meta and local reports.
+LICENSE
+*.md
+lighthouse*.json
+wrangler.jsonc
