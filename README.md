@@ -43,3 +43,4 @@ GitHub Pages, S3, nginx…). No build, no dependencies. Point the domain at it.
 - `skyrim.gif` was re-encoded to a muted looping `off-duty.webm` (~69 KB) with a
   WebP poster frame.
 - Reduced-motion users get static content (no reveal/typewriter).
+ 
