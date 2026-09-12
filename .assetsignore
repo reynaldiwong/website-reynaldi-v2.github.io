@@ -2,8 +2,17 @@
 #
 # Why this file exists: with assets.directory "./" Wrangler walks the whole working tree and
 # does not respect .gitignore. The first dry-run read 8319 files and hard-failed on
-# .venv-seg/.../llvmlite.dll at 115 MiB against the 25 MiB per-asset limit - so the deploy
-# command fails outright, not merely uploading more than it should.
+# .venv-seg/.../llvmlite.dll at 115 MiB against the 25 MiB per-asset limit - the deploy fails
+# outright, not merely uploading more than it should.
+#
+# That failure is specific to deploying from a working copy that has the 400 MB segmentation
+# venv sitting in it. A Cloudflare-side build clones the repository instead, and .venv-seg,
+# _shots and _lowpoly are all gitignored, so they are never in that clone: a CI deploy would
+# have succeeded without this file (verified by cloning HEAD, deleting this file, and running
+# the dry-run - it passed). What it would have done is publish the tooling and generator
+# sources as public assets. Measured in a clean checkout: 18 of 45 tracked files, 1186 KB,
+# including tools/ and the 1 MB me.jpg - so this file is what keeps the deploy site-only
+# (27 files / 580 KB) as well as what makes a local deploy work at all.
 #
 # What DOES ship (keep this list in mind before adding patterns): index.html, 404.html,
 # assets/css, assets/js, assets/fonts, the images under assets/img, favicon.png,
