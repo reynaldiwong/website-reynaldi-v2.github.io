@@ -51,13 +51,11 @@
   font-display: swap;
   src: url('../fonts/inter-400.woff2') format('woff2');
 }
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('../fonts/inter-600.woff2') format('woff2');
-}
+/* Inter 600 removed: no node rendered with it. --font-ui resolves to system-ui, so the
+   weight-600 micro-text renders in the platform bold (Segoe UI Semibold here), and the one
+   weight-600 rule that did land on Inter - .about__body strong - is overridden to the
+   display serif. Confirmed with CSS.getPlatformFontsForNode across the rendered tree, not
+   just by eye: zero nodes used it. 24 KB that never left the deploy server. */
 
 /* ---- Reset ---- */
 *,

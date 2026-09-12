@@ -1,0 +1,28 @@
+# Security headers for reynaldiwong.com
+#
+# Netlify and Cloudflare Pages read this file and apply the block to every response.
+# GitHub Pages ignores it entirely - if the site lands there, these same headers have to
+# go in the host config instead (Pages has no header file), which is the one thing the
+# host choice actually changes.
+#
+# CSP notes, because two directives look weaker than they are:
+#   * script-src carries hashes for all three inline scripts rather than 'unsafe-inline'.
+#     If any of them is edited, its hash must be recomputed or the script stops running -
+#     the two that matter visibly are the `js` class on <html> (reveal animations) and the
+#     footer year. That strictness is the point: 'unsafe-inline' for script-src would make
+#     the whole directive decorative.
+#   * style-src keeps 'unsafe-inline'. The page has two inline <style> blocks and a
+#     <noscript> style, and every style change in the JS goes through .style properties
+#     (not CSP-covered). With no user input anywhere on the site there is no injection
+#     path into a style context, so hashing those blocks would buy fragility, not safety.
+#   * The Spotify embed is the only third party: frame-src allows it, and the iframe's own
+#     internal loads are governed by Spotify's policy, not this one.
+#   * Permissions-Policy is belt-and-braces: the site uses none of those APIs.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw=' 'sha256-2FVDY4FPn+L0/I9ntQ7gUXdHEMTddK11cfaoNhlCsQ0=' 'sha256-XzgUe5OFqmw92fRcUj4AjwYpGUNdPyxTpzMkUICgemM='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; frame-src https://open.spotify.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
