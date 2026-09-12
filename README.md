@@ -44,3 +44,4 @@ GitHub Pages, S3, nginx…). No build, no dependencies. Point the domain at it.
   WebP poster frame.
 - Reduced-motion users get static content (no reveal/typewriter).
 
+ 
