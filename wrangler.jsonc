@@ -16,6 +16,16 @@
   //
   // No "$schema" key on purpose: it would point at ./node_modules/wrangler/..., and this
   // repo has no node_modules (wrangler runs via npx).
+  //
+  // LOCAL DEV FOOTGUN: because directory is "./", the assets directory CONTAINS .wrangler/,
+  // where wrangler dev keeps its state. It watches that directory, so its own state writes
+  // retrigger it - `wrangler dev` sits in an endless "Reloading local server..." loop and
+  // never answers a request. Point the state elsewhere for local work:
+  //
+  //   npx wrangler dev --persist-to /tmp/wrangler-state
+  //
+  // Verified both ways: state inside the tree never served a request; with --persist-to
+  // outside it, requests were served immediately and _headers was applied.
   "name": "reynaldi-website",
   "compatibility_date": "2026-09-12",
   "assets": {
